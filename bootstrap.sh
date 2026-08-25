@@ -2,15 +2,13 @@
 # ============================================================================
 # tron-grid-dots — curl-able bootstrap.
 #
-#   bash <(curl -fsSL https://raw.githubusercontent.com/<me>/tron-grid-dots/main/bootstrap.sh)
+#   bash <(curl -fsSL https://raw.githubusercontent.com/suleymangumus/tron-grid-dots/main/bootstrap.sh)
 #
 # Installs git if missing, clones to ~/.dotfiles/tron-grid-dots, runs install.sh.
 # ============================================================================
 set -u
 
-# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-GITHUB_USER="<me>"   # <-- REPLACE with your GitHub username before publishing
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GITHUB_USER="suleymangumus"
 
 REPO_URL="https://github.com/${GITHUB_USER}/tron-grid-dots.git"
 DEST="$HOME/.dotfiles/tron-grid-dots"

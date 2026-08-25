@@ -25,7 +25,7 @@ Manual:
 
 ```bash
 sudo apt install git
-git clone https://github.com/<me>/tron-grid-dots.git ~/.dotfiles/tron-grid-dots
+git clone https://github.com/suleymangumus/tron-grid-dots.git ~/.dotfiles/tron-grid-dots
 cd ~/.dotfiles/tron-grid-dots
 ./install.sh                      # add --yes for zero prompts
 ```
