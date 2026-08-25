@@ -186,8 +186,10 @@ install_eww() {         # eww — github.com/elkowar/eww (not in APT)
         . "$HOME/.cargo/env"
     } || { fail "rustup install failed"; return 1; }
     # X11 feature ONLY — the default also builds the Wayland backend, which
-    # needs gtk-layer-shell and is dead weight on this stack
-    cargo install --git https://github.com/elkowar/eww eww \
+    # needs gtk-layer-shell and is dead weight on this stack.
+    # --locked: build with eww's own Cargo.lock; freshly-resolved deps break
+    # (e.g. new glib crate vs old dbusmenu-glib: missing ObjectExt items).
+    cargo install --locked --git https://github.com/elkowar/eww eww \
         --no-default-features --features x11 --root "$HOME/.local" ||
         fail "eww cargo build failed"
 }
