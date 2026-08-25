@@ -363,6 +363,13 @@ setup_greetd() {
     fi
     sudo cp "$tmp" /etc/greetd/config.toml || { fail "writing /etc/greetd/config.toml failed"; return 1; }
 
+    # Debian's Xorg wrapper only lets "console users" start X; the startx
+    # launched from a greetd session (and especially inside VMs) can fail
+    # that check and leave a Qt/X-less boot console. Loosen it.
+    printf 'allowed_users=anybody\nneeds_root_rights=yes\n' |
+        sudo tee /etc/X11/Xwrapper.config >/dev/null ||
+        fail "writing /etc/X11/Xwrapper.config failed"
+
     ask "Disable SDDM and enable greetd now? Takes effect on reboot (y/n)" "y"
     if [ "$REPLY" = "y" ]; then
         sudo systemctl disable sddm 2>/dev/null
