@@ -350,6 +350,10 @@ setup_greetd() {
     sudo apt-get install -y greetd || { fail "greetd apt install failed"; return 1; }
     install_tuigreet || return 1
 
+    # logging session wrapper (see login/greetd/tron-xstart)
+    sudo install "$REPO/login/greetd/tron-xstart" /usr/local/bin/tron-xstart ||
+        { fail "installing tron-xstart wrapper failed"; return 1; }
+
     # render config (ANSI color name swap for orange mode)
     local src="$REPO/login/greetd/config.toml" tmp=/tmp/greetd-config.toml
     if [ "$ACCENT" = "orange" ]; then

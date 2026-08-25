@@ -77,6 +77,20 @@
 .music-controls button:hover { color: $accent; }
 .music-controls .play { font-size: 20px; color: $accent; }
 
+// --- app launcher ---
+.app-btn {
+  font-size: 20px;
+  color: $accent-soft;
+  background-color: $bg;
+  border: 1px solid rgba(74, 96, 112, 0.6);
+  border-radius: 8px;
+  padding: 8px 11px;    // ~40px hit area: finger-friendly
+}
+.app-btn:hover, .app-btn:active {
+  color: $accent;
+  border-color: $accent;
+}
+
 // --- rings ---
 .ring {
   color: $accent;                       // progress arc

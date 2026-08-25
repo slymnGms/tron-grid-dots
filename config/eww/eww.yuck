@@ -59,10 +59,25 @@
     (label :class "music-artist" :limit-width 28 :halign "start"
            :text {music.artist})
     (box :class "music-controls" :halign "center" :spacing 24 :space-evenly false
-      (button :onclick "playerctl previous" "玲")
+      ;; Nerd Fonts v3 (nf-md-*) codepoints — v2 ones render as CJK tofu
+      (button :onclick "playerctl previous" "󰒮")
       (button :class "play" :onclick "playerctl play-pause"
-              {music.status == "Playing" ? "" : ""})
-      (button :onclick "playerctl next" "怜"))))
+              {music.status == "Playing" ? "󰏤" : "󰐊"})
+      (button :onclick "playerctl next" "󰒭"))))
+
+;; one-tap app launcher (tablet-friendly); edit the list to taste
+(defwidget app-btn [icon cmd]
+  (button :class "app-btn" :onclick "setsid -f ${cmd} >/dev/null 2>&1" icon))
+
+(defwidget launch-card []
+  (card :title "PROGRAMS"
+    (box :halign "center" :spacing 8 :space-evenly false
+      (app-btn :icon "󰆍" :cmd "kitty")            ;; terminal
+      (app-btn :icon "󰈹" :cmd "firefox")          ;; browser
+      (app-btn :icon "󰉋" :cmd "pcmanfm-qt")       ;; files (GUI)
+      (app-btn :icon "󰝚" :cmd "kitty -e cmus")    ;; music
+      (app-btn :icon "󰍛" :cmd "kitty -e btop")    ;; monitor
+      (app-btn :icon "󰑵" :cmd "tron-rotate"))))   ;; rotate screen
 
 (defwidget ring [value label]
   (box :orientation "v" :space-evenly false
@@ -89,6 +104,7 @@
     (box :class "hud" :orientation "v" :space-evenly false :spacing 10
       (label :class "hud-header" :text "// SYSTEM MONITOR //")
       (clock-card)
+      (launch-card)
       (rings-card)
       (weather-card)
       (music-card)

@@ -11,5 +11,7 @@ vt = 7
 [default_session]
 # --sessions: X11 session list (bspwm/openbox .desktop files live there)
 # -x wraps the chosen session in startx so X11 sessions work under greetd
-command = "tuigreet --time --remember --remember-user-session --asterisks --greeting 'IDENTIFY YOURSELF, PROGRAM' --sessions /usr/share/xsessions --xsession-wrapper 'startx /usr/bin/env' --theme 'border=cyan;text=gray;prompt=cyan;time=cyan;action=gray;button=cyan;container=black;input=white'"
+# tron-xstart = "startx /usr/bin/env" + session logging to
+# ~/.local/state/tron/xsession.log (installed by install.sh)
+command = "tuigreet --time --remember --remember-user-session --asterisks --greeting 'IDENTIFY YOURSELF, PROGRAM' --sessions /usr/share/xsessions --xsession-wrapper /usr/local/bin/tron-xstart --theme 'border=cyan;text=gray;prompt=cyan;time=cyan;action=gray;button=cyan;container=black;input=white'"
 user = "_greetd"
