@@ -18,14 +18,14 @@ One line on a fresh machine (installs git, clones to
 `~/.dotfiles/tron-grid-dots`, runs the installer):
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/<me>/tron-grid-dots/main/bootstrap.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/slymnGms/tron-grid-dots/main/bootstrap.sh)
 ```
 
 Manual:
 
 ```bash
 sudo apt install git
-git clone https://github.com/suleymangumus/tron-grid-dots.git ~/.dotfiles/tron-grid-dots
+git clone https://github.com/slymnGms/tron-grid-dots.git ~/.dotfiles/tron-grid-dots
 cd ~/.dotfiles/tron-grid-dots
 ./install.sh                      # add --yes for zero prompts
 ```
