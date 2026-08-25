@@ -177,12 +177,18 @@ install_eww() {         # eww — github.com/elkowar/eww (not in APT)
     sudo apt-get install -y build-essential libgtk-3-dev libpango1.0-dev \
         libgdk-pixbuf-2.0-dev libcairo2-dev libglib2.0-dev libdbusmenu-gtk3-dev ||
         { fail "eww build deps failed"; return 1; }
+    # pick up a cargo installed by a previous run of this script
+    # shellcheck disable=SC1091
+    [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
     command -v cargo >/dev/null || {
         curl -fsSL https://sh.rustup.rs | sh -s -- -y --profile minimal &&
         # shellcheck disable=SC1091
         . "$HOME/.cargo/env"
     } || { fail "rustup install failed"; return 1; }
-    cargo install --git https://github.com/elkowar/eww eww --root "$HOME/.local" ||
+    # X11 feature ONLY — the default also builds the Wayland backend, which
+    # needs gtk-layer-shell and is dead weight on this stack
+    cargo install --git https://github.com/elkowar/eww eww \
+        --no-default-features --features x11 --root "$HOME/.local" ||
         fail "eww cargo build failed"
 }
 
