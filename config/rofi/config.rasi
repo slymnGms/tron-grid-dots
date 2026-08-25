@@ -1,0 +1,12 @@
+/* tron-grid-dots — rofi (runs on demand, ~0 idle cost) */
+configuration {
+    modi: "drun,run,window";
+    show-icons: false;          /* icons cost RAM + look off-theme */
+    drun-display-format: "{name}";
+    display-drun: "PROGRAMS";
+    display-run: "EXEC";
+    display-window: "GRID";
+    matching: "fuzzy";
+    terminal: "kitty";
+}
+@theme "tron"

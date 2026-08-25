@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ========================================================================
+  tron-grid-dots — openbox (~8 MB RSS). The touch/tablet-friendly session:
+  floating windows, real titlebars (finger-draggable), obconf-editable.
+  Theme "TronGrid" is installed to ~/.themes by theme/apply.sh.
+  Omitted sections fall back to openbox defaults.
+========================================================================= -->
+<openbox_config xmlns="http://openbox.org/3.4/rc">
+
+  <resistance>
+    <strength>10</strength>
+    <screen_edge_strength>20</screen_edge_strength>
+  </resistance>
+
+  <focus>
+    <focusNew>yes</focusNew>
+    <followMouse>no</followMouse>
+    <raiseOnFocus>no</raiseOnFocus>
+  </focus>
+
+  <placement>
+    <policy>Smart</policy>
+    <center>yes</center>
+  </placement>
+
+  <theme>
+    <name>TronGrid</name>
+    <titleLayout>NLIMC</titleLayout>
+    <keepBorder>yes</keepBorder>
+    <animateIconify>no</animateIconify>
+    <font place="ActiveWindow">
+      <name>Orbitron</name><size>8</size><weight>Bold</weight><slant>Normal</slant>
+    </font>
+    <font place="InactiveWindow">
+      <name>Orbitron</name><size>8</size><weight>Normal</weight><slant>Normal</slant>
+    </font>
+    <font place="MenuHeader">
+      <name>Orbitron</name><size>9</size><weight>Bold</weight><slant>Normal</slant>
+    </font>
+    <font place="MenuItem">
+      <name>JetBrainsMono Nerd Font</name><size>9</size><weight>Normal</weight><slant>Normal</slant>
+    </font>
+    <font place="OnScreenDisplay">
+      <name>Orbitron</name><size>9</size><weight>Bold</weight><slant>Normal</slant>
+    </font>
+  </theme>
+
+  <desktops>
+    <number>4</number>
+    <firstdesk>1</firstdesk>
+    <names>
+      <name>1</name><name>2</name><name>3</name><name>4</name>
+    </names>
+    <popupTime>400</popupTime>
+  </desktops>
+
+  <resize>
+    <drawContents>yes</drawContents>
+    <popupShow>Nonpixel</popupShow>
+    <popupPosition>Center</popupPosition>
+  </resize>
+
+  <margins><!-- room for polybar -->
+    <top>26</top><bottom>0</bottom><left>0</left><right>0</right>
+  </margins>
+
+  <keyboard>
+    <!-- mirror the core bspwm binds so muscle memory carries over -->
+    <keybind key="W-Return"><action name="Execute"><command>kitty</command></action></keybind>
+    <keybind key="W-space"><action name="Execute"><command>rofi -show drun -theme tron</command></action></keybind>
+    <keybind key="W-d"><action name="Execute"><command>sh -c "$HOME/.config/eww/scripts/hud-toggle.sh"</command></action></keybind>
+    <keybind key="W-e"><action name="Execute"><command>kitty -e ranger</command></action></keybind>
+    <keybind key="W-o"><action name="Execute"><command>tron-rotate</command></action></keybind>
+    <keybind key="W-q"><action name="Close"/></keybind>
+    <keybind key="W-f"><action name="ToggleMaximize"/></keybind>
+    <keybind key="A-Tab"><action name="NextWindow"><finalactions><action name="Focus"/><action name="Raise"/></finalactions></action></keybind>
+    <keybind key="W-1"><action name="GoToDesktop"><to>1</to></action></keybind>
+    <keybind key="W-2"><action name="GoToDesktop"><to>2</to></action></keybind>
+    <keybind key="W-3"><action name="GoToDesktop"><to>3</to></action></keybind>
+    <keybind key="W-4"><action name="GoToDesktop"><to>4</to></action></keybind>
+    <keybind key="W-S-1"><action name="SendToDesktop"><to>1</to></action></keybind>
+    <keybind key="W-S-2"><action name="SendToDesktop"><to>2</to></action></keybind>
+    <keybind key="W-S-3"><action name="SendToDesktop"><to>3</to></action></keybind>
+    <keybind key="W-S-4"><action name="SendToDesktop"><to>4</to></action></keybind>
+    <keybind key="W-S-e"><action name="Exit"><prompt>yes</prompt></action></keybind>
+    <keybind key="XF86AudioRaiseVolume"><action name="Execute"><command>pactl set-sink-volume @DEFAULT_SINK@ +5%</command></action></keybind>
+    <keybind key="XF86AudioLowerVolume"><action name="Execute"><command>pactl set-sink-volume @DEFAULT_SINK@ -5%</command></action></keybind>
+    <keybind key="XF86AudioMute"><action name="Execute"><command>pactl set-sink-mute @DEFAULT_SINK@ toggle</command></action></keybind>
+    <keybind key="XF86MonBrightnessUp"><action name="Execute"><command>brightnessctl set +10%</command></action></keybind>
+    <keybind key="XF86MonBrightnessDown"><action name="Execute"><command>brightnessctl set 10%-</command></action></keybind>
+    <keybind key="XF86AudioPlay"><action name="Execute"><command>playerctl play-pause</command></action></keybind>
+  </keyboard>
+
+  <mouse>
+    <dragThreshold>8</dragThreshold><!-- higher = friendlier to fat fingers -->
+    <doubleClickTime>400</doubleClickTime>
+    <context name="Titlebar">
+      <mousebind button="Left" action="Drag"><action name="Move"/></mousebind>
+      <mousebind button="Left" action="DoubleClick"><action name="ToggleMaximize"/></mousebind>
+    </context>
+    <context name="Frame">
+      <mousebind button="W-Left" action="Drag"><action name="Move"/></mousebind>
+      <mousebind button="W-Right" action="Drag"><action name="Resize"/></mousebind>
+    </context>
+    <context name="Client">
+      <mousebind button="Left" action="Press"><action name="Focus"/><action name="Raise"/></mousebind>
+    </context>
+    <context name="Desktop">
+      <mousebind button="Right" action="Press"><action name="ShowMenu"><menu>root-menu</menu></action></mousebind>
+    </context>
+  </mouse>
+
+  <applications>
+    <application class="Eww"><decor>no</decor><skip_taskbar>yes</skip_taskbar></application>
+    <application class="Polybar"><decor>no</decor></application>
+  </applications>
+
+</openbox_config>

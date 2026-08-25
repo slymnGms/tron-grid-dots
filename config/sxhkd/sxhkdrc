@@ -1,0 +1,88 @@
+# ============================================================================
+# tron-grid-dots — sxhkd (~1 MB). Keep this in sync with the README table.
+# ============================================================================
+
+# --- launchers ---------------------------------------------------------------
+
+# terminal
+super + Return
+    kitty
+
+# app launcher
+super + space
+    rofi -show drun -theme tron
+
+# HUD dashboard (the centerpiece)
+super + d
+    ~/.config/eww/scripts/hud-toggle.sh
+
+# file manager (ranger inside kitty)
+super + e
+    kitty -e ranger
+
+# --- windows -----------------------------------------------------------------
+
+# close / kill
+super + {_,shift + }q
+    bspc node -{c,k}
+
+# fullscreen toggle
+super + f
+    bspc node -t "~fullscreen"
+
+# tiled <-> floating toggle
+super + t
+    bspc node -t "~floating"
+
+# focus / swap in direction
+super + {_,shift + }{h,j,k,l}
+    bspc node -{f,s} {west,south,north,east}
+
+# resize (grow/shrink by 20px)
+super + ctrl + {h,j,k,l}
+    bspc node -z {left -20 0,bottom 0 20,top 0 -20,right 20 0}
+
+# --- desktops ----------------------------------------------------------------
+
+# focus desktop / move window to desktop
+super + {_,shift + }{1-6}
+    bspc {desktop -f,node -d} '^{1-6}'
+
+# cycle desktops
+super + {bracketleft,bracketright}
+    bspc desktop -f {prev,next}.local
+
+# --- system ------------------------------------------------------------------
+
+# tablet-mode screen+touch rotation (linked into ~/.local/bin by install.sh)
+super + o
+    tron-rotate
+
+# reload sxhkd / restart bspwm
+super + shift + {c,r}
+    {pkill -USR1 -x sxhkd && notify-send 'sxhkd' 'RELOADED',bspc wm -r}
+
+# quit bspwm (logout)
+super + shift + e
+    bspc quit
+
+# screenshot: full / region (to ~/Pictures and clipboard)
+# sh -c keeps this working even if $SHELL is later chsh'd to fish
+{_,shift + }Print
+    sh -c 'mkdir -p "$HOME/Pictures"; f="$HOME/Pictures/shot-$(date +%s).png"; \
+    maim {_,-s} "$f" && xclip -selection clipboard -t image/png -i "$f"'
+
+# --- media / hardware keys ---------------------------------------------------
+
+XF86AudioRaiseVolume
+    pactl set-sink-volume @DEFAULT_SINK@ +5%
+XF86AudioLowerVolume
+    pactl set-sink-volume @DEFAULT_SINK@ -5%
+XF86AudioMute
+    pactl set-sink-mute @DEFAULT_SINK@ toggle
+
+XF86MonBrightness{Up,Down}
+    brightnessctl set {+10%,10%-}
+
+XF86Audio{Play,Next,Prev}
+    playerctl {play-pause,next,previous}

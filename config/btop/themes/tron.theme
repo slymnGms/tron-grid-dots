@@ -1,0 +1,68 @@
+# ============================================================================
+# tron-grid-dots — btop theme (cyan-default template; theme/apply.sh renders
+# the accent-swapped copy to ~/.config/btop/themes/tron.theme).
+# ============================================================================
+
+# Main
+theme[main_bg]="#05080D"
+theme[main_fg]="#C8D6E0"
+theme[title]="#00E5FF"
+theme[hi_fg]="#00E5FF"
+theme[selected_bg]="#0A1017"
+theme[selected_fg]="#00E5FF"
+theme[inactive_fg]="#4A6070"
+theme[graph_text]="#6FC3DF"
+theme[meter_bg]="#0A1017"
+theme[proc_misc]="#6FC3DF"
+
+# Boxes
+theme[cpu_box]="#4A6070"
+theme[mem_box]="#4A6070"
+theme[net_box]="#4A6070"
+theme[proc_box]="#4A6070"
+theme[div_line]="#4A6070"
+
+# Temperature graph (cool -> hot)
+theme[temp_start]="#00E5FF"
+theme[temp_mid]="#6FC3DF"
+theme[temp_end]="#FF4A1C"
+
+# CPU graph
+theme[cpu_start]="#0A1017"
+theme[cpu_mid]="#6FC3DF"
+theme[cpu_end]="#00E5FF"
+
+# Mem/Disk free meter
+theme[free_start]="#0A1017"
+theme[free_mid]="#6FC3DF"
+theme[free_end]="#00E5FF"
+
+# Mem/Disk cached meter
+theme[cached_start]="#0A1017"
+theme[cached_mid]="#6FC3DF"
+theme[cached_end]="#00E5FF"
+
+# Mem/Disk available meter
+theme[available_start]="#0A1017"
+theme[available_mid]="#6FC3DF"
+theme[available_end]="#00E5FF"
+
+# Mem/Disk used meter
+theme[used_start]="#0A1017"
+theme[used_mid]="#FF8A5C"
+theme[used_end]="#FF4A1C"
+
+# Download graph
+theme[download_start]="#0A1017"
+theme[download_mid]="#6FC3DF"
+theme[download_end]="#00E5FF"
+
+# Upload graph
+theme[upload_start]="#0A1017"
+theme[upload_mid]="#FF8A5C"
+theme[upload_end]="#FF4A1C"
+
+# Process box color gradient
+theme[process_start]="#4A6070"
+theme[process_mid]="#6FC3DF"
+theme[process_end]="#00E5FF"

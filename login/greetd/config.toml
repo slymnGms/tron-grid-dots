@@ -1,0 +1,15 @@
+# ============================================================================
+# tron-grid-dots — greetd + tuigreet (the primary login path).
+# install.sh copies this to /etc/greetd/config.toml, swapping the --theme
+# color word to "red" when ACCENT=orange (tuigreet only takes ANSI names).
+# ============================================================================
+
+[terminal]
+# VT to run the greeter on; 7 keeps it off the boot-message consoles
+vt = 7
+
+[default_session]
+# --sessions: X11 session list (bspwm/openbox .desktop files live there)
+# -x wraps the chosen session in startx so X11 sessions work under greetd
+command = "tuigreet --time --remember --remember-user-session --asterisks --greeting 'IDENTIFY YOURSELF, PROGRAM' --sessions /usr/share/xsessions --xsession-wrapper 'startx /usr/bin/env' --theme 'border=cyan;text=gray;prompt=cyan;time=cyan;action=gray;button=cyan;container=black;input=white'"
+user = "_greetd"

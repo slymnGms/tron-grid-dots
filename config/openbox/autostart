@@ -1,0 +1,21 @@
+# tron-grid-dots — openbox autostart (sourced by openbox-session as sh).
+# Mirrors the bspwmrc autostart, minus bspwm-specific bits.
+
+REPO="$(dirname "$(dirname "$(dirname "$(readlink -f "$HOME/.config/openbox/autostart")")")")"
+. "$REPO/theme/palette.sh"
+
+if ! pgrep -x picom >/dev/null; then
+    set -- $(hex_to_rgb_frac "$TRON_ACCENT")
+    picom --config "$HOME/.config/picom/picom.conf" \
+          --shadow-red "$1" --shadow-green "$2" --shadow-blue "$3" &
+fi
+
+[ -f "$REPO/theme/wallpapers/tron-grid.png" ] && \
+    feh --no-fehbg --bg-fill "$REPO/theme/wallpapers/tron-grid.png"
+
+pgrep -x dunst >/dev/null || dunst &
+"$HOME/.config/polybar/launch.sh" &
+command -v eww >/dev/null && { eww daemon >/dev/null 2>&1 & }
+
+# touch-friendly: on-screen keyboard daemon if installed (apt: onboard)
+command -v onboard >/dev/null && onboard --startup-delay=3 &

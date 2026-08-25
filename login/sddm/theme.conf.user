@@ -1,0 +1,33 @@
+# ============================================================================
+# tron-grid-dots — Sugar Candy theme override (optional SDDM variant).
+# install.sh copies this to
+#   /usr/share/sddm/themes/sugar-candy/theme.conf.user
+# after cloning Sugar Candy, and drops the grid wallpaper in as Background.
+# Accent hexes are swapped for ACCENT=orange at install time.
+# ============================================================================
+[General]
+Background="Backgrounds/tron-grid.png"
+ScaleImageCropped="true"
+ScreenWidth="1920"
+ScreenHeight="1200"
+
+## Theme colors
+MainColor="#C8D6E0"
+AccentColor="#00E5FF"
+BackgroundColor="#05080D"
+OverrideLoginButtonTextColor="#05080D"
+InterfaceShadowSize="0"
+InterfaceShadowOpacity="0"
+RoundCorners="8"
+ScreenPadding="0"
+
+## Fonts (installed by install.sh)
+Font="Orbitron"
+FontSize="10"
+
+## Behavior
+HourFormat="HH:mm"
+DateFormat="dddd dd MMMM"
+HeaderText="IDENTIFY YOURSELF, PROGRAM"
+ForceHideCompletePassword="true"
+ForceLastUser="true"

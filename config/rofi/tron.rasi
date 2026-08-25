@@ -1,0 +1,81 @@
+/* ==========================================================================
+ * tron-grid-dots — rofi theme. Colors from colors.gen.rasi (generated).
+ * ========================================================================== */
+@import "colors.gen"
+
+* {
+    background-color: transparent;
+    text-color: @tron-fg;
+    font: "JetBrainsMono Nerd Font 11";
+}
+
+window {
+    background-color: @tron-bg;
+    border: 1px;
+    border-color: @tron-accent;
+    border-radius: 10px;
+    width: 560px;
+    padding: 18px;
+    location: center;
+}
+
+mainbox {
+    spacing: 12px;
+    children: [ inputbar, message, listview ];
+}
+
+inputbar {
+    background-color: @tron-bg-alt;
+    border: 0 0 1px 0;
+    border-color: @tron-accent;
+    border-radius: 6px;
+    padding: 10px 14px;
+    spacing: 10px;
+    children: [ prompt, entry ];
+}
+
+prompt {
+    font: "Orbitron Bold 10";
+    text-color: @tron-accent;
+    vertical-align: 0.5;
+}
+
+entry {
+    placeholder: "ENTER COMMAND_";
+    placeholder-color: @tron-fg-dim;
+    cursor: text;
+    vertical-align: 0.5;
+}
+
+message {
+    background-color: @tron-bg-alt;
+    border-radius: 6px;
+    padding: 8px;
+}
+textbox { text-color: @tron-fg-dim; }
+
+listview {
+    lines: 8;
+    columns: 1;          /* set to 3 + layout vertical for a grid mode */
+    fixed-height: false;
+    scrollbar: false;
+    spacing: 2px;
+}
+
+element {
+    padding: 8px 12px;
+    border-radius: 6px;
+}
+element-text {
+    text-color: inherit;
+    vertical-align: 0.5;
+}
+element normal.normal { text-color: @tron-fg; }
+element alternate.normal { text-color: @tron-fg; }
+element selected.normal {
+    background-color: @tron-bg-alt;
+    border: 0 0 0 2px;
+    border-color: @tron-accent;
+    text-color: @tron-accent;
+}
+element urgent { text-color: @tron-warn; }

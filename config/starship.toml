@@ -1,0 +1,48 @@
+# ============================================================================
+# tron-grid-dots — starship prompt. Two-line, minimal: dir / git / status.
+#
+# NOTE: starship has no include mechanism, so theme/apply.sh copies this file
+# to ~/.config/starship.toml, swapping the accent hexes when ACCENT=orange.
+# This committed file is the cyan-default template — edit it, then re-run
+# theme/apply.sh (or tron-update).
+# ============================================================================
+
+add_newline = true
+command_timeout = 800        # don't let a slow git status hang the Celeron
+
+format = """
+[╭](fg:#4A6070)[](fg:#00E5FF) $directory$git_branch$git_status$cmd_duration
+[╰](fg:#4A6070)$character"""
+
+[character]
+success_symbol = "[❯](bold #00E5FF)"
+error_symbol = "[❯](bold #FF4A1C)"
+vimcmd_symbol = "[❮](bold #6FC3DF)"
+
+[directory]
+style = "bold #C8D6E0"
+truncation_length = 4
+truncate_to_repo = true
+read_only = " 󰌾"
+read_only_style = "#FF4A1C"
+
+[git_branch]
+symbol = " "
+style = "#6FC3DF"
+format = "[$symbol$branch]($style) "
+
+[git_status]
+style = "#FF4A1C"
+format = "[$all_status$ahead_behind]($style)"
+ahead = "⇡${count} "
+behind = "⇣${count} "
+diverged = "⇕ "
+modified = "✱${count} "
+staged = "+${count} "
+untracked = "?${count} "
+stashed = "≡ "
+
+[cmd_duration]
+min_time = 2000
+style = "#4A6070"
+format = "[took $duration]($style)"

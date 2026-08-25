@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# ============================================================================
+# tron-grid-dots — bspwm (~2 MB RSS). Thin accent borders, small gaps.
+# This file is a symlink into the repo, so we can locate the repo through it.
+# ============================================================================
+
+REPO="$(dirname "$(dirname "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")")")"
+# shellcheck source=../../theme/palette.sh
+. "$REPO/theme/palette.sh"
+
+# --- desktops / layout -------------------------------------------------------
+bspc monitor -d 1 2 3 4 5 6
+
+bspc config border_width          2
+bspc config window_gap            8
+bspc config split_ratio           0.52
+bspc config borderless_monocle    true
+bspc config gapless_monocle       true
+bspc config focus_follows_pointer true
+bspc config pointer_modifier      mod4
+
+# --- colors from the palette (recolor = edit ACCENT, nothing else) -----------
+bspc config normal_border_color   "$TRON_FG_DIM"
+bspc config focused_border_color  "$TRON_ACCENT"
+bspc config active_border_color   "$TRON_ACCENT_SOFT"
+bspc config urgent_border_color   "$TRON_WARN"
+bspc config presel_feedback_color "$TRON_ACCENT_SOFT"
+
+# --- rules -------------------------------------------------------------------
+bspc rule -r '*'
+bspc rule -a Eww state=floating border=off
+bspc rule -a Rofi state=floating
+
+# --- autostart (only once, survives bspwm restarts) --------------------------
+pgrep -x sxhkd  >/dev/null || sxhkd &
+
+# picom (~30 MB): config is static; the accent shadow color is injected here
+# from the palette so picom.conf never needs regenerating.
+if ! pgrep -x picom >/dev/null; then
+    read -r SR SG SB <<< "$(hex_to_rgb_frac "$TRON_ACCENT")"
+    picom --config "$HOME/.config/picom/picom.conf" \
+          --shadow-red "$SR" --shadow-green "$SG" --shadow-blue "$SB" &
+fi
+
+# wallpaper
+WALL="$REPO/theme/wallpapers/tron-grid.png"
+[ -f "$WALL" ] && feh --no-fehbg --bg-fill "$WALL"
+
+pgrep -x dunst  >/dev/null || dunst &
+
+"$HOME/.config/polybar/launch.sh" &
+
+# eww daemon (~50-60 MB idle — the single heaviest piece of the shell;
+# comment this out and Super+D will start it on demand instead)
+command -v eww >/dev/null && { eww daemon >/dev/null 2>&1 & }
+
+# X cursor + no screen blanking during media
+xsetroot -cursor_name left_ptr

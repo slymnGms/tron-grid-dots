@@ -1,0 +1,95 @@
+;; ===========================================================================
+;; tron-grid-dots — eww HUD dashboard (~50-60 MB daemon RSS — the heaviest
+;; single piece of this stack; everything else stays under ~30 MB).
+;; Toggled by Super+D via scripts/hud-toggle.sh (slide-in via revealer).
+;; ===========================================================================
+
+;; --- state -----------------------------------------------------------------
+(defvar hud-visible false)
+
+;; --- data sources ----------------------------------------------------------
+(defpoll time    :interval "10s" :initial "--:--" "date '+%H:%M'")
+(defpoll date    :interval "60s" :initial "..."   "date '+%A  //  %d.%m.%Y'")
+(defpoll weather :interval "900s"
+                 :initial '{"temp":"--","desc":"SCANNING","icon":"󰖙"}'
+                 "scripts/weather.sh")
+(defpoll fetch   :interval "30s"
+                 :initial '{"user":"user","host":"grid","wm":"bspwm","uptime":"--","battery":"--","distro":"Lubuntu"}'
+                 "scripts/fetch.sh")
+(defpoll disk    :interval "60s" :initial "0" "scripts/disk.sh")
+(deflisten music :initial '{"status":"none","title":"NO SIGNAL","artist":"--"}'
+                 "scripts/music.sh")
+
+;; --- widgets ---------------------------------------------------------------
+(defwidget card [title]
+  (box :class "card" :orientation "v" :space-evenly false
+    (label :class "card-title" :halign "start" :text title)
+    (children)))
+
+(defwidget clock-card []
+  (card :title "CHRONO"
+    (label :class "clock" :text time)
+    (label :class "date"  :text date)))
+
+(defwidget weather-card []
+  (card :title "ATMOSPHERE"
+    (box :space-evenly false :spacing 12
+      (label :class "weather-icon" :text {weather.icon})
+      (box :orientation "v" :space-evenly false :valign "center"
+        (label :class "weather-temp" :halign "start" :text {weather.temp})
+        (label :class "weather-desc" :halign "start" :text {weather.desc})))))
+
+(defwidget fetch-row [k v]
+  (box :class "fetch-row" :space-evenly false
+    (label :class "fetch-key" :text k)
+    (label :class "fetch-val" :limit-width 24 :text v)))
+
+(defwidget fetch-card []
+  (card :title "IDENTITY DISC"
+    (fetch-row :k "USER"   :v "${fetch.user}@${fetch.host}")
+    (fetch-row :k "SYSTEM" :v {fetch.distro})
+    (fetch-row :k "WM"     :v {fetch.wm})
+    (fetch-row :k "UPTIME" :v {fetch.uptime})
+    (fetch-row :k "POWER"  :v {fetch.battery})))
+
+(defwidget music-card []
+  (card :title "AUDIO STREAM"
+    (label :class "music-title"  :limit-width 28 :halign "start"
+           :text {music.title})
+    (label :class "music-artist" :limit-width 28 :halign "start"
+           :text {music.artist})
+    (box :class "music-controls" :halign "center" :spacing 24 :space-evenly false
+      (button :onclick "playerctl previous" "玲")
+      (button :class "play" :onclick "playerctl play-pause"
+              {music.status == "Playing" ? "" : ""})
+      (button :onclick "playerctl next" "怜"))))
+
+(defwidget ring [value label]
+  (box :orientation "v" :space-evenly false
+    (circular-progress :class "ring" :value value :thickness 4 :start-at 75
+      (label :class "ring-value" :text "${round(value, 0)}"))
+    (label :class "ring-label" :text label)))
+
+(defwidget rings-card []
+  (card :title "CORE LOAD"
+    (box :halign "center" :spacing 18 :space-evenly false
+      (ring :value {EWW_CPU.avg} :label "CPU")
+      (ring :value {EWW_RAM.used_mem_perc} :label "RAM")
+      (ring :value disk :label "DISK"))))
+
+;; --- window ----------------------------------------------------------------
+(defwindow hud
+  :monitor 0
+  :geometry (geometry :x "10px" :y "10px" :width "340px" :height "92%"
+                      :anchor "top right")
+  :stacking "fg"
+  :windowtype "dock"
+  :wm-ignore true
+  (revealer :reveal hud-visible :transition "slideleft" :duration "250ms"
+    (box :class "hud" :orientation "v" :space-evenly false :spacing 10
+      (label :class "hud-header" :text "// SYSTEM MONITOR //")
+      (clock-card)
+      (rings-card)
+      (weather-card)
+      (music-card)
+      (fetch-card))))
