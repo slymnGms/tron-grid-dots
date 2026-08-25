@@ -238,13 +238,29 @@ install_tuigreet() {    # tuigreet — github.com/apognu/tuigreet (not in noble)
     if command -v tuigreet >/dev/null; then say "tuigreet already installed"; return 0; fi
     say "installing tuigreet..."
     if sudo apt-get install -y tuigreet 2>/dev/null; then return 0; fi
+    # Releases after 0.9.1 ship no binaries, so scan the release list (newest
+    # first) for the most recent one that has an x86_64 asset.
     local url
-    url="$(curl -fsSL https://api.github.com/repos/apognu/tuigreet/releases/latest |
-           jq -r '.assets[].browser_download_url' | grep 'x86_64$' | head -1)"
-    [ -n "$url" ] || { fail "tuigreet: no x86_64 release asset found"; return 1; }
-    curl -fsSL "$url" -o /tmp/tuigreet &&
-        sudo install /tmp/tuigreet /usr/local/bin/tuigreet && rm -f /tmp/tuigreet ||
-        fail "tuigreet install failed ($url)"
+    url="$(curl -fsSL https://api.github.com/repos/apognu/tuigreet/releases |
+           jq -r '.[].assets[].browser_download_url' | grep -m1 'x86_64$')"
+    if [ -n "$url" ]; then
+        say "using release binary: $url"
+        curl -fsSL "$url" -o /tmp/tuigreet &&
+            sudo install /tmp/tuigreet /usr/local/bin/tuigreet && rm -f /tmp/tuigreet &&
+            return 0
+        warn "tuigreet binary download failed, trying cargo"
+    fi
+    # cargo fallback (tuigreet is on crates.io); installed system-wide since
+    # the _greetd user must be able to run it
+    # shellcheck disable=SC1091
+    [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+    if command -v cargo >/dev/null; then
+        cargo install --locked tuigreet --root /tmp/tuigreet-build &&
+            sudo install /tmp/tuigreet-build/bin/tuigreet /usr/local/bin/tuigreet &&
+            rm -rf /tmp/tuigreet-build && return 0
+    fi
+    fail "tuigreet install failed (no usable release asset, no cargo)"
+    return 1
 }
 
 # ------------------------------------------------------ backup + link -------
