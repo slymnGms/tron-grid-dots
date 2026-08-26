@@ -405,6 +405,34 @@ EOF
         say "seeded ~/.config/retroarch/retroarch.cfg (ozone UI, threaded video)"
     fi
     say "ROMs live in ~/ROMs — ES-DE creates per-system folders on first run"
+    install_starter_games
+}
+
+# Free starter library so ES-DE isn't empty on first boot.
+# NO commercial ROMs (Pokémon/Mario etc. are copyrighted — dump your own
+# carts into ~/ROMs). These are legal, freely-licensed homebrew, pinned to
+# release URLs verified at commit time, plus a native Mario-style platformer.
+install_starter_games() {
+    say "adding free starter games..."
+    # SuperTux: the classic libre Mario-style platformer (native, from APT)
+    sudo apt-get install -y supertux 2>/dev/null || warn "supertux install failed"
+
+    local dir="$HOME/ROMs"
+    mkdir -p "$dir/gb" "$dir/gbc" "$dir/gba"
+    fetch_rom() {  # fetch_rom URL DEST-PATH
+        [ -f "$2" ] && return 0
+        curl -fsSL "$1" -o "$2" && say "· $(basename "$2")" ||
+            warn "starter game download failed: $1"
+    }
+    # Celeste Classic — the renowned PICO-8 platformer, official free GBA port
+    fetch_rom "https://github.com/JeffRuLz/Celeste-Classic-GBA/releases/download/v1.2/Celeste.Classic.v1.2.Homebrew.gba" \
+              "$dir/gba/Celeste Classic.gba"
+    # uCity — open-source SimCity-style city builder for Game Boy Color
+    fetch_rom "https://github.com/AntonioND/ucity/releases/download/v1.3/ucity.gbc" \
+              "$dir/gbc/uCity.gbc"
+    # Libbet and the Magic Floor — polished free GB puzzle game
+    fetch_rom "https://github.com/pinobatch/libbet/releases/download/v0.08/libbet.gb" \
+              "$dir/gb/Libbet and the Magic Floor.gb"
 }
 
 # --------------------------------------------------------------- login ------

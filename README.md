@@ -116,6 +116,12 @@ layer, not a deep build-out:
   the folder layout and explains it on first run. Installed cores: GB/GBC,
   GBA, NES, SNES, Genesis, PS1, N64 (N64: light titles only on the N4000;
   more cores via RetroArch's online updater).
+- **Starter games** (all legally free): SuperTux (native Mario-style
+  platformer, in the app launcher), plus homebrew ROMs pre-dropped into
+  `~/ROMs` — Celeste Classic (GBA), µCity (GBC city builder), Libbet and
+  the Magic Floor (GB). Commercial ROMs (Pokémon, Mario, …) are
+  copyrighted and are **not** downloaded — dump your own cartridges and
+  copy them into `~/ROMs/<system>/`.
 - **Theater**: `Super+M` (or THEATER) opens **Kodi** — stock Estuary skin;
   add sources via Settings → Media. 1080p H.264/HEVC decodes in hardware
   (VAAPI) on the Gemini Lake iGPU.
