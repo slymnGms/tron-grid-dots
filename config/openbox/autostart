@@ -4,10 +4,13 @@
 REPO="$(dirname "$(dirname "$(dirname "$(readlink -f "$HOME/.config/openbox/autostart")")")")"
 . "$REPO/theme/palette.sh"
 
+# compositor skipped inside VMs — see the note in bspwmrc
 if ! pgrep -x picom >/dev/null; then
-    set -- $(hex_to_rgb_frac "$TRON_ACCENT")
-    picom --config "$HOME/.config/picom/picom.conf" \
-          --shadow-red "$1" --shadow-green "$2" --shadow-blue "$3" &
+    if [ -n "${TRON_FORCE_PICOM:-}" ] || ! systemd-detect-virt --vm --quiet 2>/dev/null; then
+        set -- $(hex_to_rgb_frac "$TRON_ACCENT")
+        picom --config "$HOME/.config/picom/picom.conf" \
+              --shadow-red "$1" --shadow-green "$2" --shadow-blue "$3" &
+    fi
 fi
 
 [ -f "$REPO/theme/wallpapers/tron-grid.png" ] && \

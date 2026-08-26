@@ -36,10 +36,17 @@ pgrep -x sxhkd  >/dev/null || sxhkd &
 
 # picom (~30 MB): config is static; the accent shadow color is injected here
 # from the palette so picom.conf never needs regenerating.
+# SKIPPED inside VMs: compositing + vsync on an emulated GPU causes
+# seconds-long input lag. Override with TRON_FORCE_PICOM=1 if your VM has
+# working 3D acceleration.
 if ! pgrep -x picom >/dev/null; then
-    read -r SR SG SB <<< "$(hex_to_rgb_frac "$TRON_ACCENT")"
-    picom --config "$HOME/.config/picom/picom.conf" \
-          --shadow-red "$SR" --shadow-green "$SG" --shadow-blue "$SB" &
+    if [ -z "${TRON_FORCE_PICOM:-}" ] && systemd-detect-virt --vm --quiet 2>/dev/null; then
+        : # VM: no compositor (no shadows/rounding/opacity, but instant input)
+    else
+        read -r SR SG SB <<< "$(hex_to_rgb_frac "$TRON_ACCENT")"
+        picom --config "$HOME/.config/picom/picom.conf" \
+              --shadow-red "$SR" --shadow-green "$SG" --shadow-blue "$SB" &
+    fi
 fi
 
 # wallpaper
