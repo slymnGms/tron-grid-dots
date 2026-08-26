@@ -34,6 +34,7 @@ BACKUP_DIR="$HOME/.config-backup-$(date +%Y%m%d-%H%M%S)"
 ACCENT="${ACCENT:-cyan}"
 WM="${WM:-bspwm}"
 LOGIN=""
+MEDIA=""
 ASSUME_YES=0
 REFRESH_ONLY=0
 FAILURES=()
@@ -58,6 +59,7 @@ while [ $# -gt 0 ]; do
         --accent)  ACCENT="${2:?--accent needs cyan|orange}"; shift 2 ;;
         --wm)      WM="${2:?--wm needs bspwm|openbox}"; shift 2 ;;
         --login)   LOGIN="${2:?--login needs greetd|sddm|skip}"; shift 2 ;;
+        --media)   MEDIA="${2:?--media needs y|n}"; shift 2 ;;
         --yes|-y)  ASSUME_YES=1; shift ;;
         --refresh) REFRESH_ONLY=1; shift ;;
         --help|-h) sed -n '2,25p' "$0"; exit 0 ;;
@@ -332,6 +334,79 @@ EOF
     sudo sysctl -q -p /etc/sysctl.d/99-tron-zram.conf 2>/dev/null || true
 }
 
+# ------------------------------------------------------- entertainment ------
+# RetroPie-style couch layer, kept basic: RetroArch + APT cores, ES-DE
+# (EmulationStation Desktop Edition) as the game frontend, Kodi for media.
+# Gemini Lake decodes 1080p in hardware (VAAPI), emulates well up to ~PS1.
+setup_entertainment() {
+    if [ -z "$MEDIA" ]; then
+        ask "Install entertainment stack (RetroArch + cores, ES-DE, Kodi)? (y/n)" "y"
+        MEDIA="$REPLY"
+    fi
+    [ "$MEDIA" = "y" ] || { say "skipping entertainment stack"; return 0; }
+
+    say "installing entertainment base (kodi, retroarch)..."
+    # libfuse2t64: AppImages need FUSE2; intel-media-va-driver: VAAPI decode
+    sudo apt-get install -y kodi retroarch libfuse2t64 intel-media-va-driver ||
+        { fail "entertainment apt install failed"; return 1; }
+    sudo apt-get install -y retroarch-assets 2>/dev/null ||
+        warn "retroarch-assets not available (menu icons may be plain)"
+
+    # libretro cores, one by one — availability varies per Ubuntu release and
+    # one missing name must not sink the rest. mupen64plus (N64) is included
+    # but expect only lighter titles to be playable on the N4000.
+    local core cores=(gambatte mgba nestopia snes9x genesisplusgx
+                      beetle-psx mupen64plus)
+    for core in "${cores[@]}"; do
+        sudo apt-get install -y "libretro-$core" 2>/dev/null ||
+            warn "core libretro-$core not in APT for '$CODENAME' (get it via RetroArch's online updater)"
+    done
+
+    # ES-DE AppImage from its GitLab package registry (not in APT)
+    if [ ! -x "$BIN/es-de" ]; then
+        say "installing ES-DE (EmulationStation Desktop Edition)..."
+        local ver url
+        ver="$(curl -fsSL 'https://gitlab.com/api/v4/projects/es-de%2Femulationstation-de/packages?order_by=created_at&sort=desc&per_page=20' |
+               jq -r '[.[] | select(.name == "ES-DE_Stable")][0].version')"
+        if [ -n "$ver" ] && [ "$ver" != "null" ]; then
+            url="https://gitlab.com/api/v4/projects/es-de%2Femulationstation-de/packages/generic/ES-DE_Stable/${ver}/ES-DE_x64.AppImage"
+            mkdir -p "$BIN"
+            curl -fSL "$url" -o "$BIN/es-de" && chmod +x "$BIN/es-de" &&
+                say "ES-DE $ver installed" ||
+                fail "ES-DE download failed ($url)"
+        else
+            fail "ES-DE: could not resolve latest version (es-de.org for manual install)"
+        fi
+    else
+        say "ES-DE already installed"
+    fi
+
+    # rofi/menu entry for ES-DE (kodi/retroarch ship their own .desktop)
+    mkdir -p "$HOME/.local/share/applications" "$HOME/ROMs"
+    cat > "$HOME/.local/share/applications/es-de.desktop" <<EOF
+[Desktop Entry]
+Type=Application
+Name=ES-DE (Games)
+Comment=EmulationStation Desktop Edition
+Exec=$BIN/es-de
+Categories=Game;
+EOF
+
+    # seed RetroArch config ONCE (it rewrites its own config, never symlink):
+    # ozone = the modern dark couch UI; threaded video helps the 2-core N4000
+    if [ ! -f "$XDG/retroarch/retroarch.cfg" ]; then
+        mkdir -p "$XDG/retroarch"
+        cat > "$XDG/retroarch/retroarch.cfg" <<'EOF'
+menu_driver = "ozone"
+video_threaded = "true"
+video_fullscreen = "true"
+pause_nonactive = "true"
+EOF
+        say "seeded ~/.config/retroarch/retroarch.cfg (ozone UI, threaded video)"
+    fi
+    say "ROMs live in ~/ROMs — ES-DE creates per-system folders on first run"
+}
+
 # --------------------------------------------------------------- login ------
 setup_login() {
     if [ -z "$LOGIN" ]; then
@@ -435,6 +510,7 @@ summary() {
     Super+Q        close window            Super+F      fullscreen
     Super+1..6     desktops                Super+E      files (ranger)
     Super+Shift+R  restart bspwm           Super+Shift+E  logout
+    Super+G        games (ES-DE)           Super+M        theater (Kodi)
     Print          screenshot
 
   Update later        : tron-update   (= git pull + re-link + re-theme)
@@ -473,6 +549,7 @@ install_anicli
 link_configs
 apply_theme
 setup_zram
+setup_entertainment
 setup_login
 check_sessions
 summary

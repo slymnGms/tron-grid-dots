@@ -79,6 +79,19 @@
       (app-btn :icon "󰍛" :cmd "kitty -e btop")    ;; monitor
       (app-btn :icon "󰑵" :cmd "tron-rotate"))))   ;; rotate screen
 
+;; entertainment: wide labeled buttons (couch/touch targets)
+(defwidget media-btn [icon label cmd]
+  (button :class "media-btn" :onclick "setsid -f ${cmd} >/dev/null 2>&1"
+    (box :space-evenly false :spacing 8 :halign "center"
+      (label :text icon)
+      (label :class "media-label" :text label))))
+
+(defwidget media-card []
+  (card :title "ENTERTAINMENT"
+    (box :spacing 6 :space-evenly true
+      (media-btn :icon "󰊴" :label "GAMES"   :cmd "es-de")
+      (media-btn :icon "󰎁" :label "THEATER" :cmd "kodi"))))
+
 (defwidget ring [value label]
   (box :orientation "v" :space-evenly false
     ;; explicit size — without it GTK collapses the ring to ~24px
@@ -107,6 +120,7 @@
       (label :class "hud-header" :text "// SYSTEM MONITOR //")
       (clock-card)
       (launch-card)
+      (media-card)
       (rings-card)
       (weather-card)
       (music-card)

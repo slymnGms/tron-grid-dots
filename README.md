@@ -45,6 +45,7 @@ from `theme/palette.sh`, sets up zram, and offers the login-manager switch.
 | `--accent` / `ACCENT` | `cyan` `orange` | `cyan` | `cyan` = Legacy (orange only for warnings). `orange` = Ares (swapped). |
 | `--wm` / `WM` | `bspwm` `openbox` | `bspwm` | Both sessions are installed; this picks which one the summary/docs point at. Openbox = floating, touch/tablet-friendly. |
 | `--login` | `greetd` `sddm` `skip` | ask (suggests `greetd`) | greetd+tuigreet TUI login (`IDENTIFY YOURSELF, PROGRAM`), themed SDDM (Sugar Candy), or hands off. |
+| `--media` | `y` `n` | ask (suggests `y`) | Entertainment stack: RetroArch + libretro cores, ES-DE game frontend, Kodi. |
 | `--yes` | | | Non-interactive, accept defaults. |
 | `--refresh` | | | Only re-link + re-theme (what `tron-update` uses). |
 
@@ -62,6 +63,8 @@ ACCENT=orange tron-update
 | `Super+Space` | Launcher (rofi) |
 | `Super+D` | **HUD dashboard** (eww slide-in) |
 | `Super+E` | File manager (ranger in kitty) |
+| `Super+G` | Games (ES-DE frontend) |
+| `Super+M` | Theater (Kodi) |
 | `Super+Q` / `Super+Shift+Q` | Close / kill window |
 | `Super+F` | Fullscreen toggle |
 | `Super+T` | Floating/tiled toggle |
@@ -101,6 +104,24 @@ tron-update        # = git pull --ff-only + re-link + regenerate theme
 | Shell | fish + starship | — |
 | TUI kit | fastfetch (custom TRON logo), btop (tron theme), tmux, neovim, ranger, lazygit, cava, ncdu, cmus, ani-cli | on demand |
 | D330 extras | zram (zstd, 60%), `tron-rotate` tablet toggle | — |
+| Entertainment | RetroArch (ozone UI) + libretro cores from APT, ES-DE frontend (AppImage), Kodi (VAAPI decode) | 0 idle — launched on demand |
+
+## Entertainment
+
+Optional (`--media y`, or answer the prompt). A basic RetroPie-style couch
+layer, not a deep build-out:
+
+- **Games**: `Super+G` (or the HUD's GAMES button) opens **ES-DE**, which
+  drives RetroArch cores. Drop ROMs into `~/ROMs/<system>/` — ES-DE creates
+  the folder layout and explains it on first run. Installed cores: GB/GBC,
+  GBA, NES, SNES, Genesis, PS1, N64 (N64: light titles only on the N4000;
+  more cores via RetroArch's online updater).
+- **Theater**: `Super+M` (or THEATER) opens **Kodi** — stock Estuary skin;
+  add sources via Settings → Media. 1080p H.264/HEVC decodes in hardware
+  (VAAPI) on the Gemini Lake iGPU.
+- All three run borderless-fullscreen under bspwm automatically, and picom
+  unredirects fullscreen windows, so emulation and video take no
+  compositor penalty.
 
 Theming: `theme/palette.sh` is the single source of truth.
 `theme/apply.sh` generates per-app color files from it — include files

@@ -71,6 +71,8 @@
     <keybind key="W-d"><action name="Execute"><command>sh -c "$HOME/.config/eww/scripts/hud-toggle.sh"</command></action></keybind>
     <keybind key="W-e"><action name="Execute"><command>kitty -e ranger</command></action></keybind>
     <keybind key="W-o"><action name="Execute"><command>tron-rotate</command></action></keybind>
+    <keybind key="W-g"><action name="Execute"><command>es-de</command></action></keybind>
+    <keybind key="W-m"><action name="Execute"><command>kodi</command></action></keybind>
     <keybind key="W-q"><action name="Close"/></keybind>
     <keybind key="W-f"><action name="ToggleMaximize"/></keybind>
     <keybind key="A-Tab"><action name="NextWindow"><finalactions><action name="Focus"/><action name="Raise"/></finalactions></action></keybind>

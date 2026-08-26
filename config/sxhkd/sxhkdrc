@@ -20,6 +20,12 @@ super + d
 super + e
     kitty -e ranger
 
+# entertainment: games frontend / media center
+super + g
+    es-de
+super + m
+    kodi
+
 # --- windows -----------------------------------------------------------------
 
 # close / kill

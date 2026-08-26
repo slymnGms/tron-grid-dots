@@ -92,6 +92,25 @@
   border-color: $accent;
 }
 
+// --- entertainment buttons ---
+.media-btn {
+  font-size: 16px;
+  color: $accent-soft;
+  border: 1px solid rgba(74, 96, 112, 0.5);
+  border-radius: 6px;
+  min-height: 40px;
+  padding: 0 10px;
+}
+.media-btn:hover, .media-btn:active {
+  color: $accent;
+  border-color: $accent;
+}
+.media-label {
+  font-family: "Orbitron";
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+
 // --- rings ---
 .ring {
   color: $accent;                       // progress arc

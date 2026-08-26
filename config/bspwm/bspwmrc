@@ -30,6 +30,10 @@ bspc config presel_feedback_color "$TRON_ACCENT_SOFT"
 bspc rule -r '*'
 bspc rule -a Eww state=floating border=off
 bspc rule -a Rofi state=floating
+# entertainment apps: borderless fullscreen couch mode (both class casings)
+for c in Kodi kodi ES-DE es-de RetroArch retroarch; do
+    bspc rule -a "$c" state=fullscreen border=off
+done
 
 # --- autostart (only once, survives bspwm restarts) --------------------------
 pgrep -x sxhkd  >/dev/null || sxhkd &
