@@ -107,21 +107,42 @@
       (ring :value {EWW_RAM.used_mem_perc} :label "RAM")
       (ring :value disk :label "DISK"))))
 
+;; power row: logout works under bspwm and openbox; reboot/poweroff go
+;; through logind (no sudo needed for an active local session)
+(defwidget power-btn [icon label cmd ?danger]
+  (button :class {(danger ?: false) ? "power-btn power-danger" : "power-btn"}
+          :onclick "setsid -f sh -c '${cmd}' >/dev/null 2>&1"
+    (box :space-evenly false :spacing 8 :halign "center"
+      (label :text icon)
+      (label :class "media-label" :text label))))
+
+(defwidget power-card []
+  (box :class "power-row" :spacing 6 :space-evenly true
+    (power-btn :icon "󰗽" :label "LOGOUT"
+               :cmd "bspc quit 2>/dev/null || openbox --exit")
+    (power-btn :icon "󰜉" :label "REBOOT" :cmd "systemctl reboot")
+    (power-btn :icon "󰐥" :label "SHUTDOWN" :cmd "systemctl poweroff"
+               :danger true)))
+
 ;; --- window ----------------------------------------------------------------
+;; two-column card grid; no :height, so the window wraps its content
 (defwindow hud
   :monitor 0
-  :geometry (geometry :x "10px" :y "10px" :width "340px" :height "92%"
-                      :anchor "top right")
+  :geometry (geometry :x "10px" :y "10px" :width "560px" :anchor "top right")
   :stacking "fg"
   :windowtype "dock"
   :wm-ignore true
   (revealer :reveal hud-visible :transition "slideleft" :duration "250ms"
     (box :class "hud" :orientation "v" :space-evenly false :spacing 10
       (label :class "hud-header" :text "// SYSTEM MONITOR //")
-      (clock-card)
-      (launch-card)
-      (media-card)
-      (rings-card)
-      (weather-card)
-      (music-card)
-      (fetch-card))))
+      (box :orientation "h" :space-evenly true :spacing 10
+        (box :orientation "v" :space-evenly false :spacing 10
+          (clock-card)
+          (rings-card)
+          (fetch-card))
+        (box :orientation "v" :space-evenly false :spacing 10
+          (launch-card)
+          (media-card)
+          (weather-card)
+          (music-card)))
+      (power-card))))

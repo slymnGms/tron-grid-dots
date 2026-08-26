@@ -111,6 +111,25 @@
   letter-spacing: 2px;
 }
 
+// --- power row ---
+.power-row { margin-top: 2px; }
+.power-btn {
+  font-size: 15px;
+  color: $fg-dim;
+  border: 1px solid rgba(74, 96, 112, 0.5);
+  border-radius: 6px;
+  min-height: 38px;
+  padding: 0 10px;
+}
+.power-btn:hover, .power-btn:active {
+  color: $accent;
+  border-color: $accent;
+}
+.power-danger:hover, .power-danger:active {
+  color: $warn;
+  border-color: $warn;
+}
+
 // --- rings ---
 .ring {
   color: $accent;                       // progress arc
