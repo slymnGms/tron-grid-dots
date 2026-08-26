@@ -71,7 +71,7 @@
 
 (defwidget launch-card []
   (card :title "PROGRAMS"
-    (box :halign "center" :spacing 8 :space-evenly false
+    (box :spacing 6 :space-evenly true
       (app-btn :icon "󰆍" :cmd "kitty")            ;; terminal
       (app-btn :icon "󰈹" :cmd "firefox")          ;; browser
       (app-btn :icon "󰉋" :cmd "pcmanfm-qt")       ;; files (GUI)
@@ -81,7 +81,9 @@
 
 (defwidget ring [value label]
   (box :orientation "v" :space-evenly false
-    (circular-progress :class "ring" :value value :thickness 4 :start-at 75
+    ;; explicit size — without it GTK collapses the ring to ~24px
+    (circular-progress :class "ring" :value value :thickness 5 :start-at 75
+                       :width 64 :height 64
       (label :class "ring-value" :text "${round(value, 0)}"))
     (label :class "ring-label" :text label)))
 

@@ -80,12 +80,12 @@
 
 // --- app launcher ---
 .app-btn {
-  font-size: 20px;
+  font-size: 17px;
   color: $accent-soft;
-  background-color: $bg;
-  border: 1px solid rgba(74, 96, 112, 0.6);
-  border-radius: 8px;
-  padding: 8px 11px;    // ~40px hit area: finger-friendly
+  border: 1px solid rgba(74, 96, 112, 0.5);
+  border-radius: 6px;
+  min-width: 42px;      // even fixed hit area centers the glyph
+  min-height: 38px;
 }
 .app-btn:hover, .app-btn:active {
   color: $accent;
