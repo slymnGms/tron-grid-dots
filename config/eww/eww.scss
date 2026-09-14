@@ -73,7 +73,7 @@ $ok:          #00E5FF;
 .weather-desc { font-size: 10px; color: $fg-dim; }
 
 // --- fetch ---
-.fetch-row { margin: 2px 0; }
+.fetch-row { margin: 2px 0px; }
 .fetch-key {
   font-family: "Orbitron";
   font-size: 9px;
@@ -162,7 +162,6 @@ $ok:          #00E5FF;
 .mirror {
   background-color: rgba(5, 8, 13, 0.96);
 }
-.mirror-inner { min-width: 100%; min-height: 100%; }
 .mirror-tag {
   font-family: "Orbitron";
   font-size: 11px;
@@ -184,7 +183,7 @@ $ok:          #00E5FF;
   min-width: 180px;
   min-height: 1px;
   background-color: $accent;
-  margin: 8px 0;
+  margin: 8px 0px;
 }
 .mirror-wicon { font-size: 36px; color: $accent; }
 .mirror-wtemp { font-family: "Orbitron"; font-size: 28px; color: $fg; }

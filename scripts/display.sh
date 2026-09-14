@@ -57,8 +57,8 @@ internal_output() {
 }
 
 externals_connected() {
-    local int="$1"
-    xrandr --query | awk -v int="$int" '$2 == "connected" && $1 != int { print $1 }'
+    local panel="$1"
+    xrandr --query | awk -v panel="$panel" '$2 == "connected" && $1 != panel { print $1 }'
 }
 
 # Real sink: DRM EDID is at least one block. USB-C PD often shows
@@ -103,15 +103,15 @@ output_active() {
 }
 
 status_word() {
-    local int ext real=0 active=0
-    int="$(internal_output)" || { printf 'none\n'; return 0; }
+    local panel ext real=0 active=0
+    panel="$(internal_output)" || { printf 'none\n'; return 0; }
     while IFS= read -r ext; do
         [ -n "$ext" ] || continue
         has_edid "$ext" || continue
         real=1
         output_active "$ext" && active=1
     done <<EOF
-$(externals_connected "$int")
+$(externals_connected "$panel")
 EOF
     if [ "$real" -eq 0 ]; then
         printf 'none\n'
@@ -123,11 +123,11 @@ EOF
 }
 
 apply_layout() {
-    local int ext pref
-    int="$(internal_output)" || { err "no internal panel"; return 1; }
+    local panel ext pref
+    panel="$(internal_output)" || { err "no internal panel"; return 1; }
 
     # Device display owns the origin and primary flag — never a DP from USB-C.
-    xrandr --output "$int" --primary || true
+    xrandr --output "$panel" --primary || true
 
     pref="$(pref_get)"
     [ "$pref" = "off" ] || pref="on"
@@ -144,24 +144,24 @@ apply_layout() {
         fi
         # Mirror the panel. Never --left-of/--right-of (that is what broke
         # geometry when a charger advertised a fake second screen).
-        xrandr --output "$ext" --auto --rotate normal --same-as "$int" 2>/dev/null ||
+        xrandr --output "$ext" --auto --rotate normal --same-as "$panel" 2>/dev/null ||
             xrandr --output "$ext" --off 2>/dev/null || true
     done <<EOF
-$(externals_connected "$int")
+$(externals_connected "$panel")
 EOF
 
     # USB-C expand can leave a ghost bspwm monitor with broken geometry.
     if command -v bspc >/dev/null && pgrep -x bspwm >/dev/null; then
         extras=0
         while IFS= read -r m; do
-            [ -n "$m" ] && [ "$m" != "$int" ] || continue
+            [ -n "$m" ] && [ "$m" != "$panel" ] || continue
             extras=1
             bspc monitor "$m" -r 2>/dev/null || true
         done <<EOF
 $(bspc query -M --names 2>/dev/null)
 EOF
         if [ "$extras" -eq 1 ]; then
-            bspc monitor "$int" -d 1 2 3 4 5 6 2>/dev/null || true
+            bspc monitor "$panel" -d 1 2 3 4 5 6 2>/dev/null || true
         fi
     fi
 
