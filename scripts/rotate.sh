@@ -19,13 +19,22 @@ set -u
 HERE="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 
 display_bin() {
-    if [ -x "$HERE/display.sh" ]; then
+    # Prefer the sibling script even when git did not mark it +x (Windows
+    # checkouts). Invoked with `bash` so execute-bit is not required.
+    if [ -f "$HERE/display.sh" ]; then
         printf '%s\n' "$HERE/display.sh"
-    elif [ -x /usr/local/bin/tron-display ]; then
+    elif [ -f /usr/local/bin/tron-display ]; then
         printf '%s\n' /usr/local/bin/tron-display
     elif command -v tron-display >/dev/null; then
         command -v tron-display
     fi
+}
+
+run_display() {
+    local script
+    script="$(display_bin)"
+    [ -n "$script" ] || return 0
+    bash "$script" "$@"
 }
 
 err() { printf 'rotate: %s\n' "$*" >&2; command -v notify-send >/dev/null && notify-send "ROTATE" "$*"; }
@@ -59,7 +68,7 @@ command -v xrandr >/dev/null || { err "xrandr not found"; exit 1; }
 OUTPUT=""
 DISP="$(display_bin)"
 if [ -n "$DISP" ]; then
-    OUTPUT="$("$DISP" internal)" || OUTPUT=""
+    OUTPUT="$(run_display internal)" || OUTPUT=""
 fi
 if [ -z "$OUTPUT" ]; then
     for _ in 1 2 3 4 5 6 7 8 9 10; do
@@ -134,7 +143,7 @@ apply() {
     local next="$1"
     xrandr --output "$OUTPUT" --primary --rotate "$next" || { err "xrandr rotate failed"; exit 1; }
     map_inputs "$next"
-    [ -n "$DISP" ] && "$DISP" --quiet ensure || true
+    [ -n "$DISP" ] && run_display --quiet ensure || true
     notify "Display: $next"
 }
 
@@ -145,7 +154,7 @@ fi
 
 apply_policy() {
     map_inputs "$CURRENT"
-    [ -n "$DISP" ] && "$DISP" --quiet ensure || true
+    [ -n "$DISP" ] && run_display --quiet ensure || true
 }
 
 if [ -n "$TARGET" ]; then

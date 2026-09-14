@@ -165,7 +165,7 @@ EOF
         fi
     fi
 
-    [ -x "$HERE/rotate.sh" ] && "$HERE/rotate.sh" --quiet --map-inputs || true
+    [ -f "$HERE/rotate.sh" ] && bash "$HERE/rotate.sh" --quiet --map-inputs || true
 }
 
 cmd="${1:-ensure}"
