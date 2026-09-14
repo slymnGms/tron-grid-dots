@@ -448,11 +448,11 @@ setup_orient() {
         return 1
     fi
 
-    sudo install -m 755 "$REPO/scripts/orient.sh" /usr/local/bin/tron-orient ||
+    sudo ln -sf "$REPO/scripts/orient.sh" /usr/local/bin/tron-orient ||
         { fail "installing tron-orient failed"; return 1; }
-    sudo install -m 755 "$REPO/scripts/rotate.sh" /usr/local/bin/tron-rotate ||
+    sudo ln -sf "$REPO/scripts/rotate.sh" /usr/local/bin/tron-rotate ||
         { fail "installing tron-rotate helper failed"; return 1; }
-    sudo install -m 755 "$REPO/scripts/display.sh" /usr/local/bin/tron-display ||
+    sudo ln -sf "$REPO/scripts/display.sh" /usr/local/bin/tron-display ||
         { fail "installing tron-display helper failed"; return 1; }
 
     sudo install -m 644 "$REPO/login/orient/tron-orient.service" \

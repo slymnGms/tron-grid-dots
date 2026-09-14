@@ -64,12 +64,15 @@ ensure_xrandr() {
     ')
     [ -n "$out" ] || return 0
     xrandr --output "$out" --primary >/dev/null 2>&1 || true
-    cur=$(xrandr --query --verbose | awk -v o="$out" '
-        $1 == o {
-            for (i = 1; i <= NF; i++)
-                if ($i == "normal" || $i == "left" || $i == "right" || $i == "inverted") {
-                    print $i; exit
+    cur=$(xrandr --query --verbose | awk -v target="$out" '
+        $1 == target {
+            nw = split($0, w, /[ \t]+/)
+            for (k = 1; k <= nw; k++) {
+                if (w[k] == "normal" || w[k] == "left" || w[k] == "right" || w[k] == "inverted") {
+                    print w[k]
+                    exit
                 }
+            }
         }')
     [ "$cur" = "right" ] && return 0
     xrandr --output "$out" --primary --rotate right || true

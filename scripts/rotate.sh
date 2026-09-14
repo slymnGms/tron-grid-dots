@@ -76,12 +76,15 @@ if [ -z "$OUTPUT" ]; then
 fi
 [ -n "$OUTPUT" ] || { err "no connected output found"; exit 1; }
 
-CURRENT="$(xrandr --query --verbose | awk -v o="$OUTPUT" '
-    $1 == o {
-        for (i = 1; i <= NF; i++)
-            if ($i == "normal" || $i == "left" || $i == "right" || $i == "inverted") {
-                print $i; exit
+CURRENT="$(xrandr --query --verbose | awk -v target="$OUTPUT" '
+    $1 == target {
+        nw = split($0, w, /[ \t]+/)
+        for (k = 1; k <= nw; k++) {
+            if (w[k] == "normal" || w[k] == "left" || w[k] == "right" || w[k] == "inverted") {
+                print w[k]
+                exit
             }
+        }
     }')"
 
 # Display rotate is xrandr. Touchscreen/pen follow the panel via
