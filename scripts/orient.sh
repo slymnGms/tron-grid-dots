@@ -2,7 +2,7 @@
 # ============================================================================
 # tron-grid-dots — D330 landscape home (90° clockwise).
 # Used at boot (systemd/udev) and as a no-op-if-done helper for fbcon.
-# X/touch mapping is tron-rotate --ensure (needs a display).
+# X display ensure is tron-rotate --ensure (needs a display; inputs untouched).
 #
 #   tron-orient           ensure fbcon now; if DISPLAY is set, ensure xrandr
 #   tron-orient --boot    wait for fbcon, then ensure (systemd oneshot)

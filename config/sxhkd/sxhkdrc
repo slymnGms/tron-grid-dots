@@ -60,7 +60,7 @@ super + {bracketleft,bracketright}
 
 # --- system ------------------------------------------------------------------
 
-# tablet-mode screen+touch rotation (D330 home is --rotate right; Super+O toggles portrait)
+# tablet-mode display rotation only (D330 home is --rotate right; Super+O toggles portrait)
 super + o
     tron-rotate
 

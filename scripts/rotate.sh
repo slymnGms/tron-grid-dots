@@ -3,6 +3,7 @@
 # tron-grid-dots — D330 screen orientation (bound to Super+O, linked as
 # tron-rotate). The panel is physically 90° off: at xrandr "normal" the top
 # bar sits on the left physical edge. Landscape home is --rotate right.
+# Display only — touchpad/touchscreen/pen stay on the identity matrix.
 #
 #   tron-rotate                  toggle right (landscape) <-> normal (portrait)
 #   tron-rotate right            set landscape home
@@ -56,35 +57,28 @@ CURRENT="$(xrandr --query --verbose | awk -v o="$OUTPUT" '
             }
     }')"
 
-matrix_for() {
-    case "$1" in
-        normal)   printf '1 0 0 0 1 0 0 0 1' ;;
-        left)     printf '0 -1 1 1 0 0 0 0 1' ;;
-        right)    printf '0 1 0 -1 0 1 0 0 1' ;;
-        inverted) printf '-1 0 1 0 -1 1 0 0 1' ;;
-        *) return 1 ;;
-    esac
+# Undo any Coordinate Transformation Matrix left from older tron-rotate
+# (that grep matched the touchpad too). Display rotation is xrandr only.
+reset_input_maps() {
+    command -v xinput >/dev/null || return 0
+    xinput list --name-only | grep -iE 'touch|finger|pen|stylus|goodix|silead|wacom' |
+    while IFS= read -r dev; do
+        xinput set-prop "$dev" 'Coordinate Transformation Matrix' \
+            1 0 0 0 1 0 0 0 1 2>/dev/null
+    done
 }
 
 apply() {
-    local next="$1" matrix
-    matrix="$(matrix_for "$next")" || { err "unknown rotation: $next"; exit 1; }
+    local next="$1"
     xrandr --output "$OUTPUT" --rotate "$next" || { err "xrandr rotate failed"; exit 1; }
-
-    # remap touchscreen + pen so touches land where they look
-    if command -v xinput >/dev/null; then
-        xinput list --name-only | grep -iE 'touch|finger|pen|stylus|goodix|silead|wacom' |
-        while IFS= read -r dev; do
-            # shellcheck disable=SC2086
-            xinput set-prop "$dev" 'Coordinate Transformation Matrix' $matrix 2>/dev/null
-        done
-    fi
-
+    reset_input_maps
     notify "Display: $next"
 }
 
+reset_input_maps
+
 if [ -n "$TARGET" ]; then
-    # login/autostart: skip the xrandr call if boot or Xsetup already rotated
+    # login/autostart: skip the xrandr call if the panel is already home
     if [ "$ENSURE" = 1 ] && [ "$CURRENT" = "$TARGET" ]; then
         exit 0
     fi
