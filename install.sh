@@ -448,6 +448,11 @@ setup_orient() {
         return 1
     fi
 
+    sudo mkdir -p /usr/local/bin
+    # rm first: ln -sf cannot replace a root-owned regular file that was
+    # left by an older `sudo install` copy, and sudo does not expand ~/.
+    sudo rm -f /usr/local/bin/tron-orient /usr/local/bin/tron-rotate \
+               /usr/local/bin/tron-display
     sudo ln -sf "$REPO/scripts/orient.sh" /usr/local/bin/tron-orient ||
         { fail "installing tron-orient failed"; return 1; }
     sudo ln -sf "$REPO/scripts/rotate.sh" /usr/local/bin/tron-rotate ||
@@ -684,6 +689,13 @@ EOF
 
 # ================================================================= main =====
 detect_env
+
+if [ "$(id -u)" -eq 0 ]; then
+    warn "do not run install.sh with sudo. Run as your user; sudo is used only for system files."
+    echo "  bash $REPO/install.sh --refresh --yes" >&2
+    echo "  tron-update" >&2
+    exit 1
+fi
 
 if [ "$REFRESH_ONLY" = 1 ]; then
     link_configs

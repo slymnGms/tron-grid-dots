@@ -7,6 +7,15 @@ set -u
 
 REPO="$(dirname "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")")"
 
+if [ "$(id -u)" -eq 0 ]; then
+    echo "[update] Do not run this with sudo. sudo cannot see ~/.local/bin, so" >&2
+    echo "[update] 'sudo tron-update' looks like 'command not found'." >&2
+    echo "[update] Run as your user; the script will ask for sudo when needed:" >&2
+    echo "  tron-update" >&2
+    echo "  bash $REPO/scripts/update.sh" >&2
+    exit 1
+fi
+
 printf '\033[36m[update]\033[0m repo: %s\n' "$REPO"
 
 if ! git -C "$REPO" pull --ff-only; then
