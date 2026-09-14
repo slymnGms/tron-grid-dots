@@ -69,6 +69,10 @@ pgrep -x dunst  >/dev/null || dunst &
 
 # eww daemon (~50-60 MB idle — the single heaviest piece of the shell;
 # comment this out and Super+D will start it on demand instead)
+# eww: generate palette if missing, then start the daemon and reload styles
+if [ ! -f "$REPO/config/eww/_generated.scss" ]; then
+    bash "$REPO/theme/apply.sh" >/dev/null 2>&1 || true
+fi
 command -v eww >/dev/null && { eww daemon >/dev/null 2>&1 & }
 
 # Stock screensaver/DPMS blanks the rotated panel with no dismiss UI.

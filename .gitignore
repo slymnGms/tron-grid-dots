@@ -2,4 +2,3 @@
 *.gen.*
 config/dunst/dunstrc.d/
 theme/wallpapers/*.png
-config/eww/_generated.scss

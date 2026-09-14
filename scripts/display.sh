@@ -16,6 +16,8 @@
 # ============================================================================
 set -u
 
+HERE="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/tron"
 STATE="$STATE_DIR/external"
 QUIET="${QUIET:-}"
@@ -162,6 +164,8 @@ EOF
             bspc monitor "$int" -d 1 2 3 4 5 6 2>/dev/null || true
         fi
     fi
+
+    [ -x "$HERE/rotate.sh" ] && "$HERE/rotate.sh" --quiet --map-inputs || true
 }
 
 cmd="${1:-ensure}"

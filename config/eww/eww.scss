@@ -1,9 +1,21 @@
 // ===========================================================================
-// tron-grid-dots — eww HUD styles. Colors come from _generated.scss
-// (written by theme/apply.sh from theme/palette.sh; dot-free name because
-// an extra "." in an @import basename can break scss import resolution).
+// tron-grid-dots — eww HUD styles.
+// Palette is inlined (not @import): eww compiles SCSS from a temp dir, so a
+// sibling _generated.scss import fails and the HUD falls back to GTK white.
+// theme/apply.sh rewrites the PALETTE block when ACCENT changes.
 // ===========================================================================
-@import "_generated";
+
+// === PALETTE BEGIN ===
+$bg:          #05080D;
+$bg-alt:      #0A1017;
+$fg:          #C8D6E0;
+$fg-dim:      #4A6070;
+$accent:      #00E5FF;
+$accent-soft: #6FC3DF;
+$alt:         #FF4A1C;
+$warn:        #FF4A1C;
+$ok:          #00E5FF;
+// === PALETTE END ===
 
 * {
   all: unset;

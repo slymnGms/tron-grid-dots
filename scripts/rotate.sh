@@ -3,14 +3,15 @@
 # tron-grid-dots — D330 screen orientation (bound to Super+O, linked as
 # tron-rotate). The panel is physically 90° off: at xrandr "normal" the top
 # bar sits on the left physical edge. Landscape home is --rotate right.
-# Display only — touchpad/touchscreen/pen stay on the identity matrix.
+# Display only for the panel; touchscreen is mapped to that output so
+# fingers follow a 90° CW rotate. Touchpad is left on identity.
 #
 #   tron-rotate                  toggle right (landscape) <-> normal (portrait)
 #   tron-rotate right            set landscape home
 #   tron-rotate --ensure         set right only if not already (login),
 #                                then apply display policy (internal primary,
 #                                second screen mirror or off — never extend)
-#   tron-rotate normal|left|inverted
+#   tron-rotate --map-inputs     remap touchscreen to the panel (not touchpad)
 #   -q / --quiet                 no notification (session autostart)
 # ============================================================================
 set -u
@@ -42,6 +43,7 @@ for arg in "$@"; do
     case "$arg" in
         -q|--quiet) QUIET=1 ;;
         --ensure|ensure) ENSURE=1; TARGET="${TARGET:-right}" ;;
+        --map-inputs|map-inputs) MAP_ONLY=1 ;;
         normal|left|right|inverted) TARGET="$arg" ;;
         -h|--help)
             printf 'usage: tron-rotate [-q] [--ensure] [normal|left|right|inverted]\n'
@@ -82,28 +84,64 @@ CURRENT="$(xrandr --query --verbose | awk -v o="$OUTPUT" '
             }
     }')"
 
-# Undo any Coordinate Transformation Matrix left from older tron-rotate
-# (that grep matched the touchpad too). Display rotation is xrandr only.
-reset_input_maps() {
+# Display rotate is xrandr. Touchscreen/pen follow the panel via
+# `xinput map-to-output` (so a 90° CW display does not swap finger axes).
+# Touchpads/mice stay on the identity matrix — they are pointer devices,
+# not mapped to the panel, and an earlier grep on "touch" broke the mousepad.
+reset_touchpads() {
     command -v xinput >/dev/null || return 0
-    xinput list --name-only | grep -iE 'touch|finger|pen|stylus|goodix|silead|wacom' |
+    xinput list --name-only | grep -iE 'touchpad|trackpoint|trackball' |
     while IFS= read -r dev; do
+        [ -n "$dev" ] || continue
         xinput set-prop "$dev" 'Coordinate Transformation Matrix' \
             1 0 0 0 1 0 0 0 1 2>/dev/null
     done
 }
 
+map_touchscreens() {
+    command -v xinput >/dev/null || return 0
+    [ -n "$OUTPUT" ] || return 0
+    local matrix
+    case "${1:-$CURRENT}" in
+        left)     matrix="0 -1 1 1 0 0 0 0 1" ;;
+        right)    matrix="0 1 0 -1 0 1 0 0 1" ;;
+        inverted) matrix="-1 0 1 0 -1 1 0 0 1" ;;
+        *)        matrix="1 0 0 0 1 0 0 0 1" ;;
+    esac
+    xinput list --name-only |
+    while IFS= read -r dev; do
+        [ -n "$dev" ] || continue
+        printf '%s\n' "$dev" | grep -qiE 'touchpad|trackpoint|trackball|mouse|keyboard' && continue
+        if ! printf '%s\n' "$dev" | grep -qiE 'touchscreen|digitizer|goodix|silead|wacom|stylus|pen|finger'; then
+            xinput list-props "$dev" 2>/dev/null | grep -q 'Abs MT Position' || continue
+        fi
+        # Explicit CTM for the current xrandr rotate. map-to-output is not
+        # used: some builds ignore output rotation and would leave axes swapped.
+        # shellcheck disable=SC2086
+        xinput set-prop "$dev" 'Coordinate Transformation Matrix' $matrix 2>/dev/null
+    done
+}
+
+map_inputs() {
+    reset_touchpads
+    map_touchscreens "${1:-}"
+}
+
 apply() {
     local next="$1"
     xrandr --output "$OUTPUT" --primary --rotate "$next" || { err "xrandr rotate failed"; exit 1; }
-    reset_input_maps
+    map_inputs "$next"
     [ -n "$DISP" ] && "$DISP" --quiet ensure || true
     notify "Display: $next"
 }
 
-reset_input_maps
+if [ -n "${MAP_ONLY:-}" ]; then
+    map_inputs
+    exit 0
+fi
 
 apply_policy() {
+    map_inputs "$CURRENT"
     [ -n "$DISP" ] && "$DISP" --quiet ensure || true
 }
 

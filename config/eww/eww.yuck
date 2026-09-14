@@ -159,8 +159,6 @@
   :stacking "overlay"
   :windowtype "normal"
   :wm-ignore true
-  :exclusive false
-  :focusable true
   (button :class "mirror" :onclick "scripts/mirror-toggle.sh hide"
     (box :class "mirror-inner" :orientation "v" :halign "center" :valign "center"
          :spacing 14 :space-evenly false

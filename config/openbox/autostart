@@ -23,6 +23,10 @@ fi
 
 pgrep -x dunst >/dev/null || dunst &
 "$HOME/.config/polybar/launch.sh" &
+# eww: generate palette if missing, then start the daemon
+if [ ! -f "$REPO/config/eww/_generated.scss" ]; then
+    bash "$REPO/theme/apply.sh" >/dev/null 2>&1 || true
+fi
 command -v eww >/dev/null && { eww daemon >/dev/null 2>&1 & }
 
 # Stock screensaver blanks the rotated panel with no dismiss UI — see bspwmrc.
