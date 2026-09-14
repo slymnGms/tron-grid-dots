@@ -1,0 +1,4 @@
+# tron-grid-dots — D330 panel is 90° off. fbcon 1 = 90° clockwise.
+# Fires when the framebuffer console appears (may be after tron-orient.service).
+ACTION=="add", SUBSYSTEM=="graphics", KERNEL=="fbcon", ATTR{rotate_all}="1"
+ACTION=="add", SUBSYSTEM=="graphics", KERNEL=="fbcon", ATTR{rotate}="1"

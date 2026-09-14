@@ -4,6 +4,9 @@
 REPO="$(dirname "$(dirname "$(dirname "$(readlink -f "$HOME/.config/openbox/autostart")")")")"
 . "$REPO/theme/palette.sh"
 
+# D330: panel is 90° off. Apply --rotate right only if login did not.
+"$REPO/scripts/rotate.sh" --quiet --ensure || true
+
 # compositor skipped inside VMs — see the note in bspwmrc
 if ! pgrep -x picom >/dev/null; then
     if [ -n "${TRON_FORCE_PICOM:-}" ] || ! systemd-detect-virt --vm --quiet 2>/dev/null; then

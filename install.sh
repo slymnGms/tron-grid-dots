@@ -15,8 +15,9 @@
 #   --login    greetd+tuigreet (primary), themed SDDM, or leave login alone
 #                                                (default: ask, suggest greetd)
 #   --yes      non-interactive: accept all defaults, no prompts
-#   --refresh  only backup+link configs, regenerate theme, relink bin scripts;
-#              no packages, no login changes (used by scripts/update.sh)
+#   --refresh  only backup+link configs, regenerate theme, relink bin scripts,
+#              and re-install D330 orientation (boot service + login ensure);
+#              no packages, no login-manager changes (used by scripts/update.sh)
 #
 # Deliberately NOT `set -e`: every step reports its own failure and the run
 # continues, so one flaky download can't leave you with a silent half-install.
@@ -307,6 +308,7 @@ link_configs() {
     ln -sf "$REPO/scripts/rotate.sh" "$BIN/tron-rotate"
     ln -sf "$REPO/scripts/update.sh" "$BIN/tron-update"
     chmod +x "$REPO"/scripts/*.sh "$REPO"/theme/*.sh "$REPO"/theme/wallpapers/*.sh \
+             "$REPO"/login/greetd/tron-xstart "$REPO"/login/greetd/tron-xsession \
              "$CONF"/eww/scripts/*.sh "$CONF"/polybar/launch.sh "$CONF"/bspwm/bspwmrc 2>/dev/null
     say "· linked tron-rotate, tron-update into ~/.local/bin"
 }
@@ -435,6 +437,77 @@ install_starter_games() {
               "$dir/gb/Libbet and the Magic Floor.gb"
 }
 
+# ---------------------------------------------------------- orientation ------
+# D330 panel is physically 90° off. Boot rotates the console (fbcon + grub);
+# login/X applies xrandr --rotate right only if that has not already happened.
+setup_orient() {
+    say "D330 orientation: 90° CW at boot, again at login if needed..."
+    if ! command -v sudo >/dev/null; then
+        fail "sudo not found; skipping system orientation"
+        return 1
+    fi
+
+    sudo install -m 755 "$REPO/scripts/orient.sh" /usr/local/bin/tron-orient ||
+        { fail "installing tron-orient failed"; return 1; }
+    sudo install -m 755 "$REPO/scripts/rotate.sh" /usr/local/bin/tron-rotate ||
+        { fail "installing tron-rotate helper failed"; return 1; }
+
+    sudo install -m 644 "$REPO/login/orient/tron-orient.service" \
+        /etc/systemd/system/tron-orient.service ||
+        { fail "installing tron-orient.service failed"; return 1; }
+    sudo install -m 644 "$REPO/login/orient/90-tron-orient.rules" \
+        /etc/udev/rules.d/90-tron-orient.rules ||
+        fail "installing udev orient rule failed"
+
+    sudo mkdir -p /etc/X11/Xsession.d
+    sudo install -m 644 "$REPO/login/orient/40tron-orient" \
+        /etc/X11/Xsession.d/40tron-orient ||
+        fail "installing Xsession.d orient hook failed"
+
+    # kernel cmdline so the console is already rotated from the first VT
+    local grub_d=/etc/default/grub.d grub_cfg=/etc/default/grub.d/tron-orient.cfg
+    if [ -d /etc/default ] && command -v update-grub >/dev/null; then
+        sudo mkdir -p "$grub_d"
+        if ! sudo cmp -s "$REPO/login/orient/grub.cfg" "$grub_cfg" 2>/dev/null; then
+            sudo cp "$REPO/login/orient/grub.cfg" "$grub_cfg" &&
+                sudo update-grub >/dev/null &&
+                say "· grub: fbcon=rotate:1 (takes effect next reboot)" ||
+                fail "writing grub fbcon rotate failed"
+        fi
+    fi
+
+    # greetd TUI: apply fbcon at greeter start if boot missed it
+    if [ -f /lib/systemd/system/greetd.service ] ||
+       [ -f /usr/lib/systemd/system/greetd.service ] ||
+       [ -f /etc/systemd/system/greetd.service ]; then
+        sudo mkdir -p /etc/systemd/system/greetd.service.d
+        sudo cp "$REPO/login/greetd/greetd.service.d/rotate.conf" \
+            /etc/systemd/system/greetd.service.d/90-tron-rotate.conf ||
+            fail "installing greetd orient drop-in failed"
+    fi
+
+    # SDDM greeter (X before password): ensure, do not force-rotate
+    local xsetup=/usr/share/sddm/scripts/Xsetup
+    if [ -f "$xsetup" ]; then
+        if grep -q 'tron-grid-dots D330' "$xsetup"; then
+            sudo sed -i 's/tron-rotate --quiet right/tron-rotate --quiet --ensure/' "$xsetup" || true
+        else
+            printf '\n# tron-grid-dots D330 — 90° CW only if not already applied\n/usr/local/bin/tron-rotate --quiet --ensure || true\n' |
+                sudo tee -a "$xsetup" >/dev/null
+        fi
+    fi
+
+    sudo systemctl daemon-reload 2>/dev/null || true
+    sudo systemctl enable tron-orient.service >/dev/null 2>&1 ||
+        fail "enabling tron-orient.service failed"
+    sudo systemctl restart tron-orient.service 2>/dev/null ||
+        sudo systemctl start tron-orient.service 2>/dev/null ||
+        fail "starting tron-orient.service failed"
+    sudo udevadm control --reload-rules 2>/dev/null || true
+    sudo udevadm trigger --subsystem-match=graphics --action=add 2>/dev/null || true
+    say "· boot service enabled (tron-orient); login will no-op if already right"
+}
+
 # --------------------------------------------------------------- login ------
 setup_login() {
     if [ -z "$LOGIN" ]; then
@@ -453,9 +526,18 @@ setup_greetd() {
     sudo apt-get install -y greetd || { fail "greetd apt install failed"; return 1; }
     install_tuigreet || return 1
 
-    # logging session wrapper (see login/greetd/tron-xstart)
+    # logging session wrapper + login-time ensure (see login/greetd/)
     sudo install "$REPO/login/greetd/tron-xstart" /usr/local/bin/tron-xstart ||
         { fail "installing tron-xstart wrapper failed"; return 1; }
+    sudo install "$REPO/login/greetd/tron-xsession" /usr/local/bin/tron-xsession ||
+        { fail "installing tron-xsession wrapper failed"; return 1; }
+
+    # if boot rotation did not stick, apply fbcon again just before tuigreet
+    sudo mkdir -p /etc/systemd/system/greetd.service.d
+    sudo cp "$REPO/login/greetd/greetd.service.d/rotate.conf" \
+        /etc/systemd/system/greetd.service.d/90-tron-rotate.conf ||
+        { fail "installing greetd rotate drop-in failed"; return 1; }
+    sudo systemctl daemon-reload 2>/dev/null || true
 
     # render config (ANSI color name swap for orange mode)
     local src="$REPO/login/greetd/config.toml" tmp=/tmp/greetd-config.toml
@@ -562,6 +644,7 @@ detect_env
 if [ "$REFRESH_ONLY" = 1 ]; then
     link_configs
     apply_theme
+    setup_orient
     summary
     exit 0
 fi
@@ -578,6 +661,7 @@ link_configs
 apply_theme
 setup_zram
 setup_entertainment
+setup_orient
 setup_login
 check_sessions
 summary

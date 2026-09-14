@@ -1,0 +1,5 @@
+# tron-grid-dots — X login: rotate 90° CW only if boot/Xsetup did not already.
+# Sourced by /etc/X11/Xsession (SDDM etc). Must not exit.
+if [ -x /usr/local/bin/tron-rotate ]; then
+    /usr/local/bin/tron-rotate --quiet --ensure || true
+fi

@@ -1,12 +1,14 @@
 #!/bin/sh
 # ============================================================================
 # tron-grid-dots — X session wrapper used by tuigreet.
-# Same as tuigreet's default ("startx /usr/bin/env <session>") but logs the
-# whole session to ~/.local/state/tron/xsession.log, because a session that
-# dies under greetd otherwise vanishes without a trace when the VT switches.
-# Installed to /usr/local/bin/tron-xstart by install.sh.
+# Logs the session to ~/.local/state/tron/xsession.log (a session that dies
+# under greetd otherwise vanishes without a trace when the VT switches) and
+# hands the client to tron-xsession, which applies 90° CW only if boot did
+# not already. Installed to /usr/local/bin/tron-xstart by install.sh.
 # ============================================================================
 LOG_DIR="$HOME/.local/state/tron"
 mkdir -p "$LOG_DIR"
 echo "=== tron-xstart $(date '+%F %T') session: $* ===" >> "$LOG_DIR/xsession.log"
-exec startx /usr/bin/env "$@" >> "$LOG_DIR/xsession.log" 2>&1
+# tron-xsession ensures xrandr right (no-op if already applied) then execs the WM
+exec startx /usr/local/bin/tron-xsession "$@" >> "$LOG_DIR/xsession.log" 2>&1
+

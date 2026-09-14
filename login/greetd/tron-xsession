@@ -1,0 +1,32 @@
+#!/bin/sh
+# ============================================================================
+# tron-grid-dots — X client wrapper used by tron-xstart (greetd/tuigreet).
+# X does not inherit fbcon rotation from boot. Ensure 90° CW here only if
+# it is not already applied, then exec the chosen session.
+# Installed to /usr/local/bin/tron-xsession by install.sh.
+# ============================================================================
+
+ensure_panel() {
+    if [ -x "$HOME/.local/bin/tron-rotate" ]; then
+        "$HOME/.local/bin/tron-rotate" --quiet --ensure && return 0
+    fi
+    if [ -x /usr/local/bin/tron-rotate ]; then
+        /usr/local/bin/tron-rotate --quiet --ensure && return 0
+    fi
+    command -v xrandr >/dev/null || return 0
+    out=$(xrandr --query | awk '/ connected/{print $1; exit}')
+    [ -n "$out" ] || return 0
+    cur=$(xrandr --query --verbose | awk -v o="$out" '
+        $1 == o {
+            for (i = 1; i <= NF; i++)
+                if ($i == "normal" || $i == "left" || $i == "right" || $i == "inverted") {
+                    print $i; exit
+                }
+        }')
+    [ "$cur" = "right" ] && return 0
+    xrandr --output "$out" --rotate right
+}
+
+ensure_panel
+
+exec /usr/bin/env "$@"
