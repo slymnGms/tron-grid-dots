@@ -71,5 +71,11 @@ pgrep -x dunst  >/dev/null || dunst &
 # comment this out and Super+D will start it on demand instead)
 command -v eww >/dev/null && { eww daemon >/dev/null 2>&1 & }
 
-# X cursor + no screen blanking during media
+# Stock screensaver/DPMS blanks the rotated panel with no dismiss UI.
+# xset actually turns blanking off (the old comment never did); idle-mirror
+# then shows a tap-to-resume clock/weather overlay.
+command -v xset >/dev/null && xset s off s noblank -dpms
+pgrep -f 'idle-mirror.sh' >/dev/null || "$REPO/scripts/idle-mirror.sh" &
+
+# X cursor
 xsetroot -cursor_name left_ptr

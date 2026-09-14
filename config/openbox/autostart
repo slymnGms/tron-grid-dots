@@ -25,5 +25,9 @@ pgrep -x dunst >/dev/null || dunst &
 "$HOME/.config/polybar/launch.sh" &
 command -v eww >/dev/null && { eww daemon >/dev/null 2>&1 & }
 
+# Stock screensaver blanks the rotated panel with no dismiss UI — see bspwmrc.
+command -v xset >/dev/null && xset s off s noblank -dpms
+pgrep -f 'idle-mirror.sh' >/dev/null || "$REPO/scripts/idle-mirror.sh" &
+
 # touch-friendly: on-screen keyboard daemon if installed (apt: onboard)
 command -v onboard >/dev/null && onboard --startup-delay=3 &

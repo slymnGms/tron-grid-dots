@@ -64,6 +64,10 @@ super + {bracketleft,bracketright}
 super + o
     tron-rotate
 
+# preview / dismiss the idle mirror overlay
+super + shift + s
+    ~/.config/eww/scripts/mirror-toggle.sh toggle
+
 # reload sxhkd / restart bspwm
 super + shift + {c,r}
     {pkill -USR1 -x sxhkd && notify-send 'sxhkd' 'RELOADED',bspc wm -r}

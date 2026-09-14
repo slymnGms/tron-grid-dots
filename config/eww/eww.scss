@@ -145,3 +145,46 @@
   letter-spacing: 2px;
   margin-top: 4px;
 }
+
+// --- magic-mirror idle overlay ---
+.mirror {
+  background-color: rgba(5, 8, 13, 0.96);
+}
+.mirror-inner { min-width: 100%; min-height: 100%; }
+.mirror-tag {
+  font-family: "Orbitron";
+  font-size: 11px;
+  color: $accent;
+  letter-spacing: 6px;
+}
+.mirror-clock {
+  font-family: "Orbitron";
+  font-size: 84px;
+  font-weight: bold;
+  color: $accent;
+}
+.mirror-date {
+  font-size: 14px;
+  color: $fg-dim;
+  letter-spacing: 3px;
+}
+.mirror-rule {
+  min-width: 180px;
+  min-height: 1px;
+  background-color: $accent;
+  margin: 8px 0;
+}
+.mirror-wicon { font-size: 36px; color: $accent; }
+.mirror-wtemp { font-family: "Orbitron"; font-size: 28px; color: $fg; }
+.mirror-wdesc {
+  font-family: "Orbitron";
+  font-size: 11px;
+  color: $fg-dim;
+  letter-spacing: 3px;
+}
+.mirror-hint {
+  font-size: 10px;
+  color: $fg-dim;
+  letter-spacing: 2px;
+  margin-top: 24px;
+}

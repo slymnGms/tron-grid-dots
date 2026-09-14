@@ -1,0 +1,6 @@
+# Disable stock X screensaver/lock autostart. The session uses the
+# tap-to-dismiss eww mirror instead (see scripts/idle-mirror.sh).
+[Desktop Entry]
+Hidden=true
+X-GNOME-Autostart-enabled=false
+X-LXQt-Need-Tray=false

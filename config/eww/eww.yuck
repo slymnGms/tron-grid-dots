@@ -151,3 +151,25 @@
           (weather-card)
           (music-card)))
       (power-card))))
+
+;; MagicMirror-style idle overlay. Tap anywhere to resume — no X locker.
+(defwindow mirror
+  :monitor 0
+  :geometry (geometry :x "0" :y "0" :width "100%" :height "100%")
+  :stacking "overlay"
+  :windowtype "normal"
+  :wm-ignore true
+  :exclusive false
+  :focusable true
+  (button :class "mirror" :onclick "scripts/mirror-toggle.sh hide"
+    (box :class "mirror-inner" :orientation "v" :halign "center" :valign "center"
+         :spacing 14 :space-evenly false
+      (label :class "mirror-tag" :text "// GRID IDLE //")
+      (label :class "mirror-clock" :text time)
+      (label :class "mirror-date" :text date)
+      (box :class "mirror-rule")
+      (box :spacing 18 :halign "center" :space-evenly false
+        (label :class "mirror-wicon" :text {weather.icon})
+        (label :class "mirror-wtemp" :text {weather.temp}))
+      (label :class "mirror-wdesc" :text {weather.desc})
+      (label :class "mirror-hint" :text "TAP ANYWHERE TO RESUME"))))

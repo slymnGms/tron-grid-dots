@@ -101,7 +101,7 @@ apt_install() {
     local pkgs=(
         # session / wm
         bspwm sxhkd openbox obconf picom polybar rofi dunst feh xinit
-        x11-xserver-utils xinput libnotify-bin
+        x11-xserver-utils xinput libnotify-bin xprintidle
         # terminal / shell
         kitty fish tmux
         # tui tools
@@ -511,6 +511,47 @@ setup_orient() {
     say "· boot service enabled (tron-orient); login will no-op if already right"
 }
 
+# ------------------------------------------------------------- idle/lock ------
+# Stock screensaver/lock grabs X and blanks the rotated D330 panel, so tap
+# never dismisses it. Hide the autostart entries and turn LXQt's idleness
+# watcher off; the session runs scripts/idle-mirror.sh instead.
+setup_idle() {
+    say "disabling stock screensaver (tap-to-resume mirror overlay)..."
+    if ! command -v xprintidle >/dev/null; then
+        sudo apt-get install -y xprintidle 2>/dev/null ||
+            fail "xprintidle missing — idle overlay needs it (apt: xprintidle)"
+    fi
+    mkdir -p "$HOME/.config/autostart" "$HOME/.config/lxqt"
+    local src="$REPO/login/autostart/hidden.desktop" n
+    for n in xscreensaver xscreensaver-autostart light-locker \
+             xfce4-screensaver xfce4-screensaver-autostart \
+             gnome-screensaver mate-screensaver xss-lock xautolock \
+             lxqt-xscreensaver-autostart; do
+        cp "$src" "$HOME/.config/autostart/${n}.desktop" 2>/dev/null || true
+    done
+
+    local lqp="$HOME/.config/lxqt/lxqt-powermanagement.conf"
+    if [ -f "$lqp" ] && grep -q '^enableIdlenessWatcher=' "$lqp"; then
+        sed -i 's/^enableIdlenessWatcher=.*/enableIdlenessWatcher=false/' "$lqp"
+    elif [ -f "$lqp" ]; then
+        printf '\nenableIdlenessWatcher=false\n' >> "$lqp"
+    else
+        printf '[General]\nenableIdlenessWatcher=false\n' > "$lqp"
+    fi
+
+    local xss="$HOME/.xscreensaver"
+    if [ -f "$xss" ]; then
+        grep -q '^mode:' "$xss" && sed -i 's/^mode:.*/mode: off/' "$xss" || printf '\nmode: off\n' >>"$xss"
+        grep -q '^lock:' "$xss" && sed -i 's/^lock:.*/lock: False/' "$xss" || printf 'lock: False\n' >>"$xss"
+        grep -q '^dpmsEnabled:' "$xss" && sed -i 's/^dpmsEnabled:.*/dpmsEnabled: False/' "$xss" || printf 'dpmsEnabled: False\n' >>"$xss"
+    else
+        printf 'mode: off\nlock: False\ndpmsEnabled: False\n' >"$xss"
+    fi
+
+    command -v xset >/dev/null && xset s off s noblank -dpms 2>/dev/null || true
+    say "· DPMS/blank off; GRID idle overlay after 5 min (tap to resume)"
+}
+
 # --------------------------------------------------------------- login ------
 setup_login() {
     if [ -z "$LOGIN" ]; then
@@ -648,6 +689,7 @@ if [ "$REFRESH_ONLY" = 1 ]; then
     link_configs
     apply_theme
     setup_orient
+    setup_idle
     summary
     exit 0
 fi
@@ -665,6 +707,7 @@ apply_theme
 setup_zram
 setup_entertainment
 setup_orient
+setup_idle
 setup_login
 check_sessions
 summary
