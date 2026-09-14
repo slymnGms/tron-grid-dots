@@ -19,6 +19,7 @@
 (defpoll disk    :interval "60s" :initial "0" "scripts/disk.sh")
 (deflisten music :initial '{"status":"none","title":"NO SIGNAL","artist":"--"}'
                  "scripts/music.sh")
+(defpoll ext-screen :interval "4s" :initial "none" "scripts/display-status.sh")
 
 ;; --- widgets ---------------------------------------------------------------
 (defwidget card [title]
@@ -71,13 +72,17 @@
 
 (defwidget launch-card []
   (card :title "PROGRAMS"
-    (box :spacing 6 :space-evenly true
-      (app-btn :icon "󰆍" :cmd "kitty")            ;; terminal
-      (app-btn :icon "󰈹" :cmd "firefox")          ;; browser
-      (app-btn :icon "󰉋" :cmd "pcmanfm-qt")       ;; files (GUI)
-      (app-btn :icon "󰝚" :cmd "kitty -e cmus")    ;; music
-      (app-btn :icon "󰍛" :cmd "kitty -e btop")    ;; monitor
-      (app-btn :icon "󰑵" :cmd "tron-rotate"))))   ;; rotate screen
+    (box :orientation "v" :spacing 6 :space-evenly false
+      (box :spacing 6 :space-evenly true
+        (app-btn :icon "󰆍" :cmd "kitty")            ;; terminal
+        (app-btn :icon "󰈹" :cmd "firefox")          ;; browser
+        (app-btn :icon "󰉋" :cmd "pcmanfm-qt")       ;; files (GUI)
+        (app-btn :icon "󰝚" :cmd "kitty -e cmus"))   ;; music
+      (box :spacing 6 :space-evenly true
+        (app-btn :icon "󰍛" :cmd "kitty -e btop")    ;; system monitor
+        (app-btn :icon "󰑵" :cmd "tron-rotate")      ;; rotate panel
+        (app-btn :icon {ext-screen == "mirror" ? "󰍹" : "󰶐"}
+                 :cmd "tron-display toggle")))))    ;; second screen on/off (mirror)
 
 ;; entertainment: wide labeled buttons (couch/touch targets)
 (defwidget media-btn [icon label cmd]

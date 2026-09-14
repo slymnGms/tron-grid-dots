@@ -6,6 +6,8 @@ REPO="$(dirname "$(dirname "$(dirname "$(readlink -f "$HOME/.config/openbox/auto
 
 # D330: panel is 90° off. Apply --rotate right only if login did not.
 "$REPO/scripts/rotate.sh" --quiet --ensure || true
+pgrep -f 'display.sh watch|tron-display watch' >/dev/null || \
+    "$REPO/scripts/display.sh" watch &
 
 # compositor skipped inside VMs — see the note in bspwmrc
 if ! pgrep -x picom >/dev/null; then

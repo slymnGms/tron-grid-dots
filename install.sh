@@ -306,11 +306,12 @@ link_configs() {
     # user scripts on PATH
     mkdir -p "$BIN"
     ln -sf "$REPO/scripts/rotate.sh" "$BIN/tron-rotate"
+    ln -sf "$REPO/scripts/display.sh" "$BIN/tron-display"
     ln -sf "$REPO/scripts/update.sh" "$BIN/tron-update"
     chmod +x "$REPO"/scripts/*.sh "$REPO"/theme/*.sh "$REPO"/theme/wallpapers/*.sh \
              "$REPO"/login/greetd/tron-xstart "$REPO"/login/greetd/tron-xsession \
              "$CONF"/eww/scripts/*.sh "$CONF"/polybar/launch.sh "$CONF"/bspwm/bspwmrc 2>/dev/null
-    say "· linked tron-rotate, tron-update into ~/.local/bin"
+    say "· linked tron-rotate, tron-display, tron-update into ~/.local/bin"
 }
 
 # ------------------------------------------------------------- theming ------
@@ -451,6 +452,8 @@ setup_orient() {
         { fail "installing tron-orient failed"; return 1; }
     sudo install -m 755 "$REPO/scripts/rotate.sh" /usr/local/bin/tron-rotate ||
         { fail "installing tron-rotate helper failed"; return 1; }
+    sudo install -m 755 "$REPO/scripts/display.sh" /usr/local/bin/tron-display ||
+        { fail "installing tron-display helper failed"; return 1; }
 
     sudo install -m 644 "$REPO/login/orient/tron-orient.service" \
         /etc/systemd/system/tron-orient.service ||

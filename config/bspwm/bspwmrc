@@ -11,6 +11,8 @@ REPO="$(dirname "$(dirname "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")")")"
 # D330: panel is 90° off. Boot already rotates fbcon; X starts unrotated, so
 # apply --rotate right here only if login/Xsetup did not.
 "$REPO/scripts/rotate.sh" --quiet --ensure || true
+pgrep -f 'display.sh watch|tron-display watch' >/dev/null || \
+    "$REPO/scripts/display.sh" watch &
 
 # --- desktops / layout -------------------------------------------------------
 bspc monitor -d 1 2 3 4 5 6

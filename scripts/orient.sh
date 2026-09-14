@@ -55,8 +55,15 @@ ensure_xrandr() {
     fi
     command -v xrandr >/dev/null || return 0
     xrandr --query >/dev/null 2>&1 || return 0
-    out=$(xrandr --query | awk '/ connected/{print $1; exit}')
+    out=$(xrandr --query | awk '
+        $2 == "connected" {
+            if ($1 ~ /^(eDP|DSI|LVDS)/) { print $1; found=1; exit }
+            if (!first) first=$1
+        }
+        END { if (!found && first) print first }
+    ')
     [ -n "$out" ] || return 0
+    xrandr --output "$out" --primary >/dev/null 2>&1 || true
     cur=$(xrandr --query --verbose | awk -v o="$out" '
         $1 == o {
             for (i = 1; i <= NF; i++)
@@ -65,7 +72,7 @@ ensure_xrandr() {
                 }
         }')
     [ "$cur" = "right" ] && return 0
-    xrandr --output "$out" --rotate right || true
+    xrandr --output "$out" --primary --rotate right || true
 }
 
 mode="${1:-}"
