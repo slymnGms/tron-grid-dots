@@ -110,7 +110,7 @@
         (button :class "media-btn" :onclick "setsid -f tron skin next >/dev/null 2>&1"
           (box :space-evenly false :spacing 8 :halign "center"
             (label :text "󰏘")
-            (label :class "media-label" :text "SKIN  ${skin-name}"))))))
+            (label :class "media-label" :text "SKIN  ${skin-name}")))))))
 
 ;; entertainment: wide labeled buttons (couch/touch targets)
 (defwidget media-btn [icon label cmd]
