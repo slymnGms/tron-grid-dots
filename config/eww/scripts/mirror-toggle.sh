@@ -13,6 +13,10 @@ cmd="${1:-toggle}"
 is_on() { [ -f "$FLAG" ] && [ "$(cat "$FLAG" 2>/dev/null)" = "1" ]; }
 
 show() {
+    # skin yuck must exist before the window can map
+    if [ ! -f "${XDG_CONFIG_HOME:-$HOME/.config}/eww/mirror.gen.yuck" ]; then
+        command -v tron >/dev/null && tron skin >/dev/null 2>&1 || true
+    fi
     eww open mirror 2>/dev/null || true
     printf '1\n' >"$FLAG"
 }

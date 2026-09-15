@@ -2,6 +2,7 @@
 ;; tron-grid-dots — eww HUD dashboard (~50-60 MB daemon RSS — the heaviest
 ;; single piece of this stack; everything else stays under ~30 MB).
 ;; Toggled by Super+D via scripts/hud-toggle.sh (slide-in via revealer).
+;; Idle overlay window lives in the generated mirror.gen.yuck (skins).
 ;; ===========================================================================
 
 ;; --- state -----------------------------------------------------------------
@@ -20,6 +21,14 @@
 (deflisten music :initial '{"status":"none","title":"NO SIGNAL","artist":"--"}'
                  "scripts/music.sh")
 (defpoll ext-screen :interval "4s" :initial "none" "scripts/display-status.sh")
+(defpoll quote   :interval "30s" :initial "Greetings, program." "scripts/quote.sh")
+(defpoll volume  :interval "2s"  :initial "50" "scripts/volume.sh")
+(defpoll brightness :interval "3s" :initial "50" "scripts/brightness.sh")
+(defpoll skin-name :interval "3s" :initial "tron" "scripts/skin-name.sh")
+(defpoll slideshow :interval "5s" :initial "" "scripts/slideshow.sh")
+(defpoll load :interval "800ms"
+         :initial '{"on":false,"bg":"","mid":"","fg":"","bx":0,"mx":0,"fx":0,"by":0,"my":0,"fy":0,"title":"","sub":"","year":"","tag":"","line":"","mark":"","studio":"","bar":0}'
+         "scripts/parallax.sh")
 
 ;; --- widgets ---------------------------------------------------------------
 (defwidget card [title]
@@ -74,15 +83,29 @@
   (card :title "PROGRAMS"
     (box :orientation "v" :spacing 6 :space-evenly false
       (box :spacing 6 :space-evenly true
-        (app-btn :icon "󰆍" :cmd "kitty")            ;; terminal
-        (app-btn :icon "󰈹" :cmd "firefox")          ;; browser
-        (app-btn :icon "󰉋" :cmd "pcmanfm-qt")       ;; files (GUI)
-        (app-btn :icon "󰝚" :cmd "kitty -e cmus"))   ;; music
+        (app-btn :icon "󰆍" :cmd "kitty")
+        (app-btn :icon "󰈹" :cmd "firefox")
+        (app-btn :icon "󰉋" :cmd "pcmanfm-qt")
+        (app-btn :icon "󰝚" :cmd "kitty -e cmus"))
       (box :spacing 6 :space-evenly true
-        (app-btn :icon "󰍛" :cmd "kitty -e btop")    ;; system monitor
-        (app-btn :icon "󰑵" :cmd "tron-rotate")      ;; rotate panel
+        (app-btn :icon "󰍛" :cmd "kitty -e btop")
+        (app-btn :icon "󰌌" :cmd "onboard")
+        (app-btn :icon "󰖩" :cmd "kitty -e nmtui")
+        (app-btn :icon "󰑵" :cmd "tron-rotate")
         (app-btn :icon {ext-screen == "mirror" ? "󰍹" : "󰶐"}
-                 :cmd "tron-display toggle")))))    ;; second screen on/off (mirror)
+                 :cmd "tron-display toggle"))
+      (box :class "slider-row" :space-evenly false :spacing 8
+        (label :class "slider-icon" :text "󰕾")
+        (scale :class "slider" :min 0 :max 100 :value volume :hexpand true
+               :timeout "500ms" :onchange "scripts/volume.sh set {}"))
+      (box :class "slider-row" :space-evenly false :spacing 8
+        (label :class "slider-icon" :text "󰃠")
+        (scale :class "slider" :min 0 :max 100 :value brightness :hexpand true
+               :timeout "500ms" :onchange "scripts/brightness.sh set {}"))
+      (button :class "media-btn" :onclick "setsid -f tron skin next >/dev/null 2>&1"
+        (box :space-evenly false :spacing 8 :halign "center"
+          (label :text "󰏘")
+          (label :class "media-label" :text "SKIN  ${skin-name}"))))))
 
 ;; entertainment: wide labeled buttons (couch/touch targets)
 (defwidget media-btn [icon label cmd]
@@ -112,8 +135,7 @@
       (ring :value {EWW_RAM.used_mem_perc} :label "RAM")
       (ring :value disk :label "DISK"))))
 
-;; power row: logout works under bspwm and openbox; reboot/poweroff go
-;; through logind (no sudo needed for an active local session)
+;; power row: logout/reboot/poweroff go through scripts/power.sh (rofi verbs)
 (defwidget power-btn [icon label cmd ?danger]
   (button :class {(danger ?: false) ? "power-btn power-danger" : "power-btn"}
           :onclick "setsid -f sh -c '${cmd}' >/dev/null 2>&1"
@@ -124,9 +146,9 @@
 (defwidget power-card []
   (box :class "power-row" :spacing 6 :space-evenly true
     (power-btn :icon "󰗽" :label "LOGOUT"
-               :cmd "bspc quit 2>/dev/null || openbox --exit")
-    (power-btn :icon "󰜉" :label "REBOOT" :cmd "systemctl reboot")
-    (power-btn :icon "󰐥" :label "SHUTDOWN" :cmd "systemctl poweroff"
+               :cmd "tron power logout")
+    (power-btn :icon "󰜉" :label "REBOOT" :cmd "tron power reboot")
+    (power-btn :icon "󰐥" :label "SHUTDOWN" :cmd "tron power poweroff"
                :danger true)))
 
 ;; --- window ----------------------------------------------------------------
@@ -152,22 +174,5 @@
           (music-card)))
       (power-card))))
 
-;; MagicMirror-style idle overlay. Tap anywhere to resume — no X locker.
-(defwindow mirror
-  :monitor 0
-  :geometry (geometry :x "0" :y "0" :width "100%" :height "100%")
-  :stacking "overlay"
-  :windowtype "normal"
-  :wm-ignore true
-  (button :class "mirror" :onclick "scripts/mirror-toggle.sh hide"
-    (box :class "mirror-inner" :orientation "v" :halign "center" :valign "center"
-         :spacing 14 :space-evenly false
-      (label :class "mirror-tag" :text "// GRID IDLE //")
-      (label :class "mirror-clock" :text time)
-      (label :class "mirror-date" :text date)
-      (box :class "mirror-rule")
-      (box :spacing 18 :halign "center" :space-evenly false
-        (label :class "mirror-wicon" :text {weather.icon})
-        (label :class "mirror-wtemp" :text {weather.temp}))
-      (label :class "mirror-wdesc" :text {weather.desc})
-      (label :class "mirror-hint" :text "TAP ANYWHERE TO RESUME"))))
+;; Rainmeter-style idle overlay (generated from config/skins/*.json)
+(include "mirror.gen.yuck")

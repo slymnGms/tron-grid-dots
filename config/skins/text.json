@@ -1,0 +1,13 @@
+{
+  "id": "text",
+  "style": "text",
+  "background": {
+    "mode": "color",
+    "color": "#000000"
+  },
+  "widgets": [
+    { "type": "clock", "slot": "center" },
+    { "type": "date", "slot": "center" },
+    { "type": "quote", "slot": "center" }
+  ]
+}

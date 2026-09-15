@@ -1,0 +1,12 @@
+{
+  "id": "minimal",
+  "style": "minimal",
+  "background": {
+    "mode": "dim",
+    "dim": 0.75
+  },
+  "widgets": [
+    { "type": "clock", "slot": "center" },
+    { "type": "weather", "slot": "top-right" }
+  ]
+}

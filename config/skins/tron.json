@@ -1,0 +1,15 @@
+{
+  "id": "tron",
+  "style": "tron",
+  "background": {
+    "mode": "dim",
+    "dim": 0.92
+  },
+  "widgets": [
+    { "type": "tag", "slot": "center", "content": "// GRID IDLE //" },
+    { "type": "clock", "slot": "center" },
+    { "type": "date", "slot": "center" },
+    { "type": "weather", "slot": "center" },
+    { "type": "hint", "slot": "bottom-center", "content": "TAP ANYWHERE TO RESUME" }
+  ]
+}

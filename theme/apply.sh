@@ -248,13 +248,22 @@ mkdir -p "$HOME/.themes/TronGrid/openbox-3"
 render_swapped "$CONF/openbox/themerc.in" "$HOME/.themes/TronGrid/openbox-3/themerc"
 say "openbox theme -> ~/.themes/TronGrid/"
 
-command -v eww >/dev/null && eww ping >/dev/null 2>&1 && eww reload >/dev/null 2>&1 || true
-
 # ------------------------------------------------------------- wallpaper ----
+# Grid desktop + loading-screen parallax plates (needed before idle skin).
 if command -v magick >/dev/null 2>&1 || command -v convert >/dev/null 2>&1; then
     bash "$THEME_DIR/wallpapers/generate.sh" || echo "[theme] WARNING: wallpaper generation failed" >&2
 else
     echo "[theme] WARNING: imagemagick not installed, skipping wallpaper generation" >&2
 fi
+
+# ------------------------------------------------------------- idle skin ----
+# Regenerates config/eww/mirror.gen.yuck from the active JSON skin, then
+# reload eww once so HUD + overlay pick up palette and layout together.
+if [ -f "$REPO_DIR/scripts/skin-render.sh" ]; then
+    TRON_SKIN_NO_RELOAD=1 bash "$REPO_DIR/scripts/skin-render.sh" || \
+        echo "[theme] WARNING: idle skin render failed" >&2
+fi
+
+command -v eww >/dev/null && eww ping >/dev/null 2>&1 && eww reload >/dev/null 2>&1 || true
 
 say "done."

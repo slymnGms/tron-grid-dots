@@ -158,10 +158,39 @@ $ok:          #00E5FF;
   margin-top: 4px;
 }
 
-// --- magic-mirror idle overlay ---
-.mirror {
-  background-color: rgba(5, 8, 13, 0.96);
+// --- HUD sliders (volume / brightness) ---
+.slider-row { margin: 2px 0px; }
+.slider-icon { font-size: 16px; color: $accent; min-width: 22px; }
+.slider {
+  all: unset;
+  min-height: 8px;
+  background-color: rgba(74, 96, 112, 0.35);
+  border-radius: 4px;
 }
+.slider trough, .slider .trough {
+  min-height: 8px;
+  background-color: rgba(74, 96, 112, 0.35);
+  border-radius: 4px;
+}
+.slider highlight, .slider .highlight {
+  background-color: $accent;
+  border-radius: 4px;
+}
+
+// --- magic-mirror idle overlay (Rainmeter-style 9-slot skins) ---
+.mirror {
+  background-color: transparent;
+}
+.mirror-root {
+  min-width: 100px;
+  min-height: 100px;
+}
+.mirror-dim {
+  padding: 28px;
+}
+.mirror-row { padding: 4px 0px; }
+.slot { padding: 4px 10px; }
+
 .mirror-tag {
   font-family: "Orbitron";
   font-size: 11px;
@@ -178,6 +207,11 @@ $ok:          #00E5FF;
   font-size: 14px;
   color: $fg-dim;
   letter-spacing: 3px;
+}
+.mirror.style-tron .mirror-date {
+  border-bottom: 1px solid $accent;
+  padding-bottom: 10px;
+  margin-bottom: 6px;
 }
 .mirror-rule {
   min-width: 180px;
@@ -197,5 +231,141 @@ $ok:          #00E5FF;
   font-size: 10px;
   color: $fg-dim;
   letter-spacing: 2px;
-  margin-top: 24px;
+  margin-top: 8px;
+}
+.mirror-quote {
+  font-size: 13px;
+  color: $fg;
+  letter-spacing: 1px;
+}
+.mirror-text {
+  font-family: "Orbitron";
+  font-size: 11px;
+  color: $accent;
+  letter-spacing: 3px;
+}
+.mirror-music { font-size: 13px; color: $fg; }
+.mirror-artist { font-size: 11px; color: $fg-dim; }
+.mirror-system {
+  font-family: "Orbitron";
+  font-size: 11px;
+  color: $accent-soft;
+  letter-spacing: 2px;
+}
+
+// no boxes, no chrome — clock + whatever the skin placed
+.mirror.style-minimal .mirror-clock {
+  font-size: 72px;
+}
+.mirror.style-minimal .mirror-tag { font-size: 0px; }
+
+// pure tty: black, monospace, no Orbitron, no accent glow
+.mirror.style-text {
+  background-color: #000000;
+  font-family: "JetBrainsMono Nerd Font", monospace;
+}
+.mirror.style-text .mirror-dim {
+  background-color: #000000;
+}
+.mirror.style-text .mirror-tag,
+.mirror.style-text .mirror-clock,
+.mirror.style-text .mirror-date,
+.mirror.style-text .mirror-quote,
+.mirror.style-text .mirror-text,
+.mirror.style-text .mirror-hint,
+.mirror.style-text .mirror-wtemp,
+.mirror.style-text .mirror-wdesc,
+.mirror.style-text .mirror-system,
+.mirror.style-text .mirror-music {
+  font-family: "JetBrainsMono Nerd Font", monospace;
+  font-weight: normal;
+  letter-spacing: 1px;
+}
+.mirror.style-text .mirror-clock {
+  font-size: 72px;
+  color: #C8D6E0;
+}
+.mirror.style-text .mirror-tag { color: #4A6070; }
+.mirror.style-text .mirror-wicon { color: #C8D6E0; }
+.mirror.style-text .mirror-wtemp { font-size: 22px; color: #C8D6E0; }
+
+// GTA V loading-screen: letterbox, left copy, 3-layer Ken Burns
+.mirror.style-loading {
+  background-color: #000000;
+}
+.load-root { background-color: #000000; }
+.load-letter {
+  background-color: #000000;
+  padding: 10px 28px;
+  min-height: 44px;
+}
+.load-studio {
+  font-family: "Orbitron";
+  font-size: 11px;
+  color: $accent;
+  letter-spacing: 6px;
+}
+.load-clock {
+  font-family: "Orbitron";
+  font-size: 14px;
+  color: $fg;
+  letter-spacing: 2px;
+}
+.load-stage { overflow: hidden; }
+.load-layer { background-color: transparent; }
+.load-grade {
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.45) 42%, rgba(0, 0, 0, 0.0) 70%);
+}
+.load-copy { padding: 0px 36px 28px 36px; }
+.load-year {
+  font-family: "Orbitron";
+  font-size: 12px;
+  color: $accent;
+  letter-spacing: 6px;
+}
+.load-title {
+  font-family: "Orbitron";
+  font-size: 52px;
+  font-weight: bold;
+  color: #E8F2F8;
+  letter-spacing: 6px;
+}
+.load-sub {
+  font-family: "Orbitron";
+  font-size: 13px;
+  color: $accent-soft;
+  letter-spacing: 8px;
+}
+.load-line {
+  font-size: 13px;
+  color: $fg;
+  letter-spacing: 2px;
+  margin-top: 8px;
+}
+.load-tag {
+  font-family: "Orbitron";
+  font-size: 11px;
+  color: $accent;
+  letter-spacing: 4px;
+}
+.load-hint, .load-mark {
+  font-size: 10px;
+  color: $fg-dim;
+  letter-spacing: 2px;
+}
+.load-mark {
+  font-family: "Orbitron";
+  color: $accent-soft;
+}
+.load-bar {
+  min-height: 4px;
+  background-color: #1a1a1a;
+}
+.load-bar trough, .load-bar .trough {
+  min-height: 4px;
+  background-color: #1a1a1a;
+}
+.load-bar highlight, .load-bar .highlight {
+  background-color: $accent;
+  min-height: 4px;
 }

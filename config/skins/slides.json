@@ -1,0 +1,16 @@
+{
+  "id": "slides",
+  "style": "minimal",
+  "background": {
+    "mode": "slideshow",
+    "dir": "~/Pictures/tron-slides",
+    "interval": 20,
+    "dim": 0.35
+  },
+  "widgets": [
+    { "type": "clock", "slot": "bottom-left" },
+    { "type": "weather", "slot": "bottom-right" },
+    { "type": "quote", "slot": "top-center" },
+    { "type": "text", "slot": "top-left", "content": "GREETINGS, PROGRAM" }
+  ]
+}
