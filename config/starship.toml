@@ -16,7 +16,7 @@ format = """
 
 [character]
 success_symbol = "[❯](bold #00E5FF)"
-error_symbol = "[❯](bold #FF4A1C)"
+error_symbol = "[END OF LINE](bold #FF4A1C)"
 vimcmd_symbol = "[❮](bold #6FC3DF)"
 
 [directory]

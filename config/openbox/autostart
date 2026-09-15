@@ -9,8 +9,11 @@ REPO="$(dirname "$(dirname "$(dirname "$(readlink -f "$HOME/.config/openbox/auto
 pgrep -f 'display.sh watch|tron-display watch' >/dev/null || \
     "$REPO/scripts/display.sh" watch &
 
+LOWPOWER="${XDG_STATE_HOME:-$HOME/.local/state}/tron/lowpower"
+
 # compositor skipped inside VMs — see the note in bspwmrc
-if ! pgrep -x picom >/dev/null; then
+# also skipped when `tron lowpower on`. onboard is HUD-toggled, not autostarted.
+if [ ! -f "$LOWPOWER" ] && ! pgrep -x picom >/dev/null; then
     if [ -n "${TRON_FORCE_PICOM:-}" ] || ! systemd-detect-virt --vm --quiet 2>/dev/null; then
         set -- $(hex_to_rgb_frac "$TRON_ACCENT")
         picom --config "$HOME/.config/picom/picom.conf" \
@@ -27,11 +30,10 @@ pgrep -x dunst >/dev/null || dunst &
 if [ ! -f "$REPO/config/eww/_generated.scss" ]; then
     bash "$REPO/theme/apply.sh" >/dev/null 2>&1 || true
 fi
-command -v eww >/dev/null && { eww daemon >/dev/null 2>&1 & }
+if [ ! -f "$LOWPOWER" ]; then
+    command -v eww >/dev/null && { eww daemon >/dev/null 2>&1 & }
+fi
 
 # Stock screensaver blanks the rotated panel with no dismiss UI — see bspwmrc.
 command -v xset >/dev/null && xset s off s noblank -dpms
 pgrep -f 'idle-mirror.sh' >/dev/null || "$REPO/scripts/idle-mirror.sh" &
-
-# touch-friendly: on-screen keyboard daemon if installed (apt: onboard)
-command -v onboard >/dev/null && onboard --startup-delay=3 &

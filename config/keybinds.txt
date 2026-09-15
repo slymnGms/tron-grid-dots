@@ -1,0 +1,28 @@
+Super+Return     terminal (kitty)
+Super+grave      scratchpad terminal
+Super+Space      launcher (rofi)
+Super+Tab        window switcher
+Super+D          HUD dashboard
+Super+E          files (ranger)
+Super+N          identity disc (notes)
+Super+G          games (ES-DE)
+Super+M          theater (Kodi)
+Super+Q          close window
+Super+Shift+Q    kill window
+Super+F          fullscreen
+Super+T          tiled / floating
+Super+H J K L    focus window
+Super+Shift+HJKL swap window
+Super+Ctrl+HJKL  resize window
+Super+1..6       focus sector
+Super+Shift+1..6 move to sector
+Super+[ ]        prev / next sector
+Super+O          tablet rotate
+Super+Shift+S    preview idle overlay
+Super+Shift+D    cycle idle skin
+Super+?          this list
+Super+Shift+C    reload sxhkd
+Super+Shift+R    restart bspwm
+Super+Shift+E    END OF LINE (power)
+Print            screenshot
+Shift+Print      region screenshot

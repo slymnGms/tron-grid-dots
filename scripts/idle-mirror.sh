@@ -46,6 +46,24 @@ is_open() { [ -f "$FLAG" ] && [ "$(cat "$FLAG" 2>/dev/null)" = "1" ]; }
 show() { [ -x "$TOGGLE" ] && "$TOGGLE" show; }
 hide() { [ -x "$TOGGLE" ] && "$TOGGLE" hide; }
 
+# CLU: warn once every 10 min when RAM is above 85% (4 GB machine).
+clu_watch() {
+    local pct last now
+    pct="$(awk '/MemTotal/{t=$2} /MemAvailable/{a=$2} END{
+        if (t+0==0) exit
+        printf "%d", (1-a/t)*100
+    }' /proc/meminfo)"
+    [ -n "$pct" ] || return 0
+    [ "$pct" -ge 85 ] || return 0
+    last=0
+    [ -r "$STATE_DIR/clu-last" ] && last="$(cat "$STATE_DIR/clu-last" 2>/dev/null || echo 0)"
+    now="$(date +%s)"
+    [ $((now - last)) -ge 600 ] || return 0
+    printf '%s\n' "$now" >"$STATE_DIR/clu-last"
+    command -v notify-send >/dev/null && \
+        notify-send -u critical "CLU" "I will create the perfect system. (${pct}% RAM)"
+}
+
 kill_stock
 hide
 
@@ -53,7 +71,7 @@ tick=0
 while true; do
     tick=$((tick + 1))
     # Power managers like to turn DPMS back on; re-assert often.
-    [ $((tick % 15)) -eq 1 ] && kill_stock
+    [ $((tick % 15)) -eq 1 ] && { kill_stock; clu_watch; }
 
     idle=0
     if command -v xprintidle >/dev/null; then

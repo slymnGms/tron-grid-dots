@@ -8,9 +8,21 @@
 super + Return
     kitty
 
+# scratchpad terminal (one reused kitty)
+super + grave
+    tron scratch
+
 # app launcher
 super + space
     rofi -show drun -theme tron
+
+# window switcher
+super + Tab
+    rofi -show window -theme tron
+
+# keybind cheatsheet
+super + shift + slash
+    tron binds
 
 # HUD dashboard (the centerpiece)
 super + d
@@ -19,6 +31,10 @@ super + d
 # file manager (ranger inside kitty)
 super + e
     kitty -e ranger
+
+# identity disc (scratch notes)
+super + n
+    sh -c 'mkdir -p "$HOME/GRID"; kitty -e nvim "$HOME/GRID/disc.md"'
 
 # entertainment: games frontend / media center
 super + g
@@ -68,13 +84,17 @@ super + o
 super + shift + s
     ~/.config/eww/scripts/mirror-toggle.sh toggle
 
+# cycle idle overlay skin (works while the overlay is up)
+super + shift + d
+    tron skin next
+
 # reload sxhkd / restart bspwm
 super + shift + {c,r}
     {pkill -USR1 -x sxhkd && notify-send 'sxhkd' 'RELOADED',bspc wm -r}
 
-# quit bspwm (logout)
+# END OF LINE — themed power menu (logout / reboot / shutdown / standby)
 super + shift + e
-    bspc quit
+    tron power
 
 # screenshot: full / region (to ~/Pictures and clipboard)
 # sh -c keeps this working even if $SHELL is later chsh'd to fish

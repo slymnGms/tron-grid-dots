@@ -49,7 +49,7 @@
     <number>4</number>
     <firstdesk>1</firstdesk>
     <names>
-      <name>1</name><name>2</name><name>3</name><name>4</name>
+      <name>I/O</name><name>GRID</name><name>ARENA</name><name>TOWER</name>
     </names>
     <popupTime>400</popupTime>
   </desktops>
@@ -67,11 +67,16 @@
   <keyboard>
     <!-- mirror the core bspwm binds so muscle memory carries over -->
     <keybind key="W-Return"><action name="Execute"><command>kitty</command></action></keybind>
+    <keybind key="W-grave"><action name="Execute"><command>tron scratch</command></action></keybind>
     <keybind key="W-space"><action name="Execute"><command>rofi -show drun -theme tron</command></action></keybind>
+    <keybind key="W-Tab"><action name="Execute"><command>rofi -show window -theme tron</command></action></keybind>
+    <keybind key="W-S-slash"><action name="Execute"><command>tron binds</command></action></keybind>
     <keybind key="W-d"><action name="Execute"><command>sh -c "$HOME/.config/eww/scripts/hud-toggle.sh"</command></action></keybind>
     <keybind key="W-e"><action name="Execute"><command>kitty -e ranger</command></action></keybind>
+    <keybind key="W-n"><action name="Execute"><command>sh -c 'mkdir -p "$HOME/GRID"; kitty -e nvim "$HOME/GRID/disc.md"'</command></action></keybind>
     <keybind key="W-o"><action name="Execute"><command>tron-rotate</command></action></keybind>
     <keybind key="W-S-s"><action name="Execute"><command>sh -c "$HOME/.config/eww/scripts/mirror-toggle.sh toggle"</command></action></keybind>
+    <keybind key="W-S-d"><action name="Execute"><command>tron skin next</command></action></keybind>
     <keybind key="W-g"><action name="Execute"><command>es-de</command></action></keybind>
     <keybind key="W-m"><action name="Execute"><command>kodi</command></action></keybind>
     <keybind key="W-q"><action name="Close"/></keybind>
@@ -85,7 +90,7 @@
     <keybind key="W-S-2"><action name="SendToDesktop"><to>2</to></action></keybind>
     <keybind key="W-S-3"><action name="SendToDesktop"><to>3</to></action></keybind>
     <keybind key="W-S-4"><action name="SendToDesktop"><to>4</to></action></keybind>
-    <keybind key="W-S-e"><action name="Exit"><prompt>yes</prompt></action></keybind>
+    <keybind key="W-S-e"><action name="Execute"><command>tron power</command></action></keybind>
     <keybind key="XF86AudioRaiseVolume"><action name="Execute"><command>pactl set-sink-volume @DEFAULT_SINK@ +5%</command></action></keybind>
     <keybind key="XF86AudioLowerVolume"><action name="Execute"><command>pactl set-sink-volume @DEFAULT_SINK@ -5%</command></action></keybind>
     <keybind key="XF86AudioMute"><action name="Execute"><command>pactl set-sink-mute @DEFAULT_SINK@ toggle</command></action></keybind>
@@ -116,6 +121,7 @@
   <applications>
     <application class="Eww"><decor>no</decor><skip_taskbar>yes</skip_taskbar></application>
     <application class="Polybar"><decor>no</decor></application>
+    <application class="tron-scratch"><layer>above</layer><skip_taskbar>yes</skip_taskbar></application>
   </applications>
 
 </openbox_config>

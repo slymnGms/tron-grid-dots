@@ -15,7 +15,7 @@ pgrep -f 'display.sh watch|tron-display watch' >/dev/null || \
     "$REPO/scripts/display.sh" watch &
 
 # --- desktops / layout -------------------------------------------------------
-bspc monitor -d 1 2 3 4 5 6
+bspc monitor -d I/O GRID ARENA TOWER SEA FLYNN
 
 bspc config border_width          2
 bspc config window_gap            8
@@ -36,6 +36,7 @@ bspc config presel_feedback_color "$TRON_ACCENT_SOFT"
 bspc rule -r '*'
 bspc rule -a Eww state=floating border=off
 bspc rule -a Rofi state=floating
+bspc rule -a tron-scratch sticky=on state=floating center=on rectangle=920x520+0+0 border=on
 # entertainment apps: borderless fullscreen couch mode (both class casings)
 for c in Kodi kodi ES-DE es-de RetroArch retroarch; do
     bspc rule -a "$c" state=fullscreen border=off
@@ -44,12 +45,14 @@ done
 # --- autostart (only once, survives bspwm restarts) --------------------------
 pgrep -x sxhkd  >/dev/null || sxhkd &
 
+LOWPOWER="${XDG_STATE_HOME:-$HOME/.local/state}/tron/lowpower"
+
 # picom (~30 MB): config is static; the accent shadow color is injected here
 # from the palette so picom.conf never needs regenerating.
 # SKIPPED inside VMs: compositing + vsync on an emulated GPU causes
 # seconds-long input lag. Override with TRON_FORCE_PICOM=1 if your VM has
-# working 3D acceleration.
-if ! pgrep -x picom >/dev/null; then
+# working 3D acceleration. Also skipped when `tron lowpower on`.
+if [ ! -f "$LOWPOWER" ] && ! pgrep -x picom >/dev/null; then
     if [ -z "${TRON_FORCE_PICOM:-}" ] && systemd-detect-virt --vm --quiet 2>/dev/null; then
         : # VM: no compositor (no shadows/rounding/opacity, but instant input)
     else
@@ -69,11 +72,14 @@ pgrep -x dunst  >/dev/null || dunst &
 
 # eww daemon (~50-60 MB idle — the single heaviest piece of the shell;
 # comment this out and Super+D will start it on demand instead)
-# eww: generate palette if missing, then start the daemon and reload styles
+# eww: generate palette if missing, then start the daemon and reload styles.
+# Super+D starts it on demand when low-power mode has killed the daemon.
 if [ ! -f "$REPO/config/eww/_generated.scss" ]; then
     bash "$REPO/theme/apply.sh" >/dev/null 2>&1 || true
 fi
-command -v eww >/dev/null && { eww daemon >/dev/null 2>&1 & }
+if [ ! -f "$LOWPOWER" ]; then
+    command -v eww >/dev/null && { eww daemon >/dev/null 2>&1 & }
+fi
 
 # Stock screensaver/DPMS blanks the rotated panel with no dismiss UI.
 # xset actually turns blanking off (the old comment never did); idle-mirror
