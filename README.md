@@ -92,8 +92,9 @@ The Openbox session mirrors the core binds (`Super+Return/Space/D/E/N/O/Q/F/grav
 ## Idle overlay (Rainmeter-style skins)
 
 The idle "screensaver" is an eww overlay (tap anywhere to resume) — not
-xscreensaver, which blanks the rotated D330 with no dismiss UI. **Working
-desktop wallpaper stays the generated grid.** Skins only apply while idle.
+xscreensaver, which blanks the rotated D330 with no dismiss UI. Start it
+from the HUD **IDLE** button or `Super+Shift+S`. **Working desktop wallpaper
+stays the generated grid.** Skins only apply while idle.
 
 ```bash
 tron skin list          # shipped + user skins
@@ -146,7 +147,7 @@ tron-update        # = git pull --ff-only + re-link + regenerate theme
 | WM | bspwm + sxhkd (alt: openbox for tablet) | ~3 MB |
 | Compositor | picom (xrender, **no blur**) | ~30 MB |
 | Bar | polybar | ~25 MB |
-| Dashboard | eww HUD: clock, weather, fetch, music, CPU/RAM/disk, volume/brightness, Wi-Fi, on-screen keyboard, idle-skin picker | ~55 MB (heaviest piece) |
+| Dashboard | eww HUD: clock, weather, fetch, music, CPU/RAM/disk, volume/brightness, Wi-Fi, on-screen keyboard, idle start + skin picker | ~55 MB (heaviest piece) |
 | Launcher | rofi | 0 idle |
 | Notifications | dunst | ~4 MB |
 | Terminal | kitty (90% opacity, ligatures) | ~90 MB/window |
