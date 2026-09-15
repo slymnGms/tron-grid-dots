@@ -60,9 +60,13 @@ ACCENT=orange tron-update
 | Keys | Action |
 |---|---|
 | `Super+Return` | Terminal (kitty) |
+| `Super+grave` | Scratchpad terminal (one reused kitty) |
 | `Super+Space` | Launcher (rofi) |
+| `Super+Tab` | Window switcher (rofi) |
+| `Super+?` | Keybind cheatsheet |
 | `Super+D` | **HUD dashboard** (eww slide-in) |
 | `Super+E` | File manager (ranger in kitty) |
+| `Super+N` | Identity disc (`~/GRID/disc.md`) |
 | `Super+G` | Games (ES-DE frontend) |
 | `Super+M` | Theater (Kodi) |
 | `Super+Q` / `Super+Shift+Q` | Close / kill window |
@@ -71,17 +75,62 @@ ACCENT=orange tron-update
 | `Super+H J K L` | Focus window west/south/north/east |
 | `Super+Shift+H J K L` | Swap window in direction |
 | `Super+Ctrl+H J K L` | Resize window |
-| `Super+1..6` | Focus desktop |
-| `Super+Shift+1..6` | Move window to desktop |
-| `Super+[` / `Super+]` | Previous / next desktop |
+| `Super+1..6` | Focus sector (`I/O` `GRID` `ARENA` `TOWER` `SEA` `FLYNN`) |
+| `Super+Shift+1..6` | Move window to sector |
+| `Super+[` / `Super+]` | Previous / next sector |
 | `Super+O` | Tablet rotate (screen + touch) |
+| `Super+Shift+S` | Preview / dismiss idle overlay |
+| `Super+Shift+D` | Cycle idle skin (tron → minimal → text → slides → loading) |
 | `Super+Shift+C` / `Super+Shift+R` | Reload sxhkd / restart bspwm |
-| `Super+Shift+E` | Quit bspwm (logout) |
+| `Super+Shift+E` | **END OF LINE** power menu |
 | `Print` / `Shift+Print` | Screenshot full / region |
 | `XF86 media keys` | Volume, brightness, playerctl |
 
-The Openbox session mirrors the core binds (`Super+Return/Space/D/E/O/Q/F`,
-`Super+1..4`, `Alt+Tab`).
+The Openbox session mirrors the core binds (`Super+Return/Space/D/E/N/O/Q/F/grave/Tab`,
+`Super+Shift+S/D`, `Super+1..4`, `Alt+Tab`).
+
+## Idle overlay (Rainmeter-style skins)
+
+The idle "screensaver" is an eww overlay (tap anywhere to resume) — not
+xscreensaver, which blanks the rotated D330 with no dismiss UI. **Working
+desktop wallpaper stays the generated grid.** Skins only apply while idle.
+
+```bash
+tron skin list          # shipped + user skins
+tron skin next          # cycle tron → minimal → text → slides → loading
+tron skin loading       # GTA V-style Tron movie/series cards
+```
+
+| Skin | Look |
+|---|---|
+| `tron` | Orbitron clock, accent chrome, dim overlay (default) |
+| `minimal` | No boxes; clock center, weather top-right |
+| `text` | TTY: JetBrainsMono on `#000000`, no CSS chrome |
+| `slides` | Slideshow from `~/Pictures/tron-slides` + corner widgets |
+| `loading` | GTA V loading-screen: letterbox, Ken Burns parallax, cycling **TRON / Legacy / Uprising / Ares** cards |
+
+Drop JPG/PNG/WebP into `~/Pictures/tron-slides` for the `slides` skin.
+Images are scaled once into `~/.cache/tron/slides/` so a 4K photo is not
+decoded every tick.
+
+Each skin is JSON (`config/skins/<name>.json`, or override in
+`~/.config/tron/skins/`). Nine slots (`top-left` … `bottom-right`) and
+widget types `clock` `date` `weather` `quote` `text` `music` `system`
+`tag` `hint`. Background modes: `dim`, `color`, `slideshow`, `parallax`.
+The `loading` skin uses `"layout": "loading"` instead of the 9-slot grid
+(letterbox + three ImageMagick layers that pan at different speeds). Copy a
+shipped file, change slots or cards, `tron skin yourname`.
+
+## `tron` CLI
+
+Linked to `~/.local/bin/tron`:
+
+```
+tron hud | rotate | display | update | skin | quote | power | scratch | binds | lowpower
+```
+
+`tron lowpower on` kills picom and the eww daemon (~80 MB back). Super+D
+still opens the HUD on demand. `tron lowpower off` restores them.
 
 ## Update
 
@@ -97,13 +146,13 @@ tron-update        # = git pull --ff-only + re-link + regenerate theme
 | WM | bspwm + sxhkd (alt: openbox for tablet) | ~3 MB |
 | Compositor | picom (xrender, **no blur**) | ~30 MB |
 | Bar | polybar | ~25 MB |
-| Dashboard | eww HUD: clock, weather (wttr.in/Open-Meteo), fetch, playerctl music, CPU/RAM/disk rings | ~55 MB (heaviest piece) |
+| Dashboard | eww HUD: clock, weather, fetch, music, CPU/RAM/disk, volume/brightness, Wi-Fi, on-screen keyboard, idle-skin picker | ~55 MB (heaviest piece) |
 | Launcher | rofi | 0 idle |
 | Notifications | dunst | ~4 MB |
 | Terminal | kitty (90% opacity, ligatures) | ~90 MB/window |
 | Shell | fish + starship | — |
 | TUI kit | fastfetch (custom TRON logo), btop (tron theme), tmux, neovim, ranger, lazygit, cava, ncdu, cmus, ani-cli | on demand |
-| D330 extras | zram (zstd, 60%), `tron-rotate` tablet toggle | — |
+| D330 extras | zram (zstd, 60%), `tron-rotate` tablet toggle, `tron lowpower` | — |
 | Entertainment | RetroArch (ozone UI) + libretro cores from APT, ES-DE frontend (AppImage), Kodi (VAAPI decode) | 0 idle — launched on demand |
 
 ## Entertainment
@@ -128,6 +177,10 @@ layer, not a deep build-out:
 - All three run borderless-fullscreen under bspwm automatically, and picom
   unredirects fullscreen windows, so emulation and video take no
   compositor penalty.
+
+The HUD also exposes volume and brightness sliders, a Wi-Fi button
+(`nmtui`), and an on-screen keyboard (`onboard`) — none of those daemons
+run idle.
 
 Theming: `theme/palette.sh` is the single source of truth.
 `theme/apply.sh` generates per-app color files from it — include files

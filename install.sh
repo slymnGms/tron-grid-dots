@@ -108,7 +108,9 @@ apt_install() {
         neovim btop ncdu cava cmus ranger
         # helpers used by configs & scripts
         maim xclip playerctl brightnessctl pulseaudio-utils jq curl wget
-        unzip xz-utils imagemagick wmctrl fontconfig git
+        unzip xz-utils imagemagick wmctrl xdotool fontconfig git
+        # tablet: on-screen keyboard (HUD-toggled, not autostarted)
+        onboard
         # ani-cli runtime deps
         mpv fzf aria2
         # eMMC-saving compressed swap
@@ -284,7 +286,7 @@ link_configs() {
     # NOTE: btop, fastfetch and starship.toml are NOT linked — they are
     # rendered copies written by theme/apply.sh (no include support / app
     # rewrites its own config). See theme/apply.sh header.
-    local dirs=(bspwm sxhkd openbox picom polybar eww rofi dunst kitty fish tmux)
+    local dirs=(bspwm sxhkd openbox picom polybar eww rofi dunst kitty fish tmux skins)
 
     if command -v stow >/dev/null 2>&1; then
         say "using GNU stow"
@@ -308,10 +310,13 @@ link_configs() {
     ln -sf "$REPO/scripts/rotate.sh" "$BIN/tron-rotate"
     ln -sf "$REPO/scripts/display.sh" "$BIN/tron-display"
     ln -sf "$REPO/scripts/update.sh" "$BIN/tron-update"
+    ln -sf "$REPO/scripts/tron.sh" "$BIN/tron"
+    ln -sf "$CONF/keybinds.txt" "$XDG/keybinds.txt" 2>/dev/null || true
+    mkdir -p "$HOME/Pictures/tron-slides" "$HOME/GRID"
     chmod +x "$REPO"/scripts/*.sh "$REPO"/theme/*.sh "$REPO"/theme/wallpapers/*.sh \
              "$REPO"/login/greetd/tron-xstart "$REPO"/login/greetd/tron-xsession \
              "$CONF"/eww/scripts/*.sh "$CONF"/polybar/launch.sh "$CONF"/bspwm/bspwmrc 2>/dev/null
-    say "· linked tron-rotate, tron-display, tron-update into ~/.local/bin"
+    say "· linked tron, tron-rotate, tron-display, tron-update into ~/.local/bin"
 }
 
 # ------------------------------------------------------------- theming ------
@@ -664,14 +669,19 @@ summary() {
                         edit ~/.config/tron-accent and run theme/apply.sh)
 
   Core keys (full table in README.md — keep them in sync!):
-    Super+Return   terminal (kitty)        Super+D      HUD dashboard
-    Super+Space    launcher (rofi)         Super+O      rotate screen (tablet)
+    Super+Return   terminal (kitty)        Super+grave  scratchpad
+    Super+Space    launcher (rofi)         Super+D      HUD dashboard
+    Super+Tab      window switcher         Super+?      keybind list
     Super+Q        close window            Super+F      fullscreen
-    Super+1..6     desktops                Super+E      files (ranger)
-    Super+Shift+R  restart bspwm           Super+Shift+E  logout
+    Super+1..6     sectors                 Super+E      files (ranger)
+    Super+N        identity disc (notes)   Super+O      rotate (tablet)
+    Super+Shift+E  END OF LINE (power)     Super+Shift+S  idle overlay
+    Super+Shift+D  cycle idle skin
     Super+G        games (ES-DE)           Super+M        theater (Kodi)
     Print          screenshot
 
+  Idle skins          : tron skin list | tron skin next
+                        (tron / minimal / text / slides / loading)
   Update later        : tron-update   (= git pull + re-link + re-theme)
 EOF
     [ -d "$BACKUP_DIR" ] && printf '  Old configs backed up to: %s\n' "$BACKUP_DIR"
