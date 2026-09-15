@@ -12,6 +12,7 @@
 #                                then apply display policy (internal primary,
 #                                second screen mirror or off — never extend)
 #   tron-rotate --map-inputs     remap touchscreen to the panel (not touchpad)
+#   tron-rotate --debug          remap and print which devices got a CTM
 #   -q / --quiet                 no notification (session autostart)
 # ============================================================================
 set -u
@@ -53,12 +54,13 @@ for arg in "$@"; do
         -q|--quiet) QUIET=1 ;;
         --ensure|ensure) ENSURE=1; TARGET="${TARGET:-right}" ;;
         --map-inputs|map-inputs) MAP_ONLY=1 ;;
+        --debug|debug) DEBUG=1 ;;
         normal|left|right|inverted) TARGET="$arg" ;;
         -h|--help)
-            printf 'usage: tron-rotate [-q] [--ensure] [normal|left|right|inverted]\n'
+            printf 'usage: tron-rotate [-q] [--ensure] [--map-inputs] [--debug] [normal|left|right|inverted]\n'
             exit 0
             ;;
-        *) err "usage: tron-rotate [-q] [--ensure] [normal|left|right|inverted]"; exit 1 ;;
+        *) err "usage: tron-rotate [-q] [--ensure] [--map-inputs] [--debug] [normal|left|right|inverted]"; exit 1 ;;
     esac
 done
 
@@ -85,56 +87,131 @@ if [ -z "$OUTPUT" ]; then
 fi
 [ -n "$OUTPUT" ] || { err "no connected output found"; exit 1; }
 
-CURRENT="$(xrandr --query --verbose | awk -v target="$OUTPUT" '
+# Word immediately before "(normal left inverted…" is the active rotation.
+# Walking every token matched `left` from that supported-list and then
+# applied the wrong touch matrix (finger right → cursor down).
+CURRENT="$(xrandr --query | awk -v target="$OUTPUT" '
     $1 == target {
-        nw = split($0, w, /[ \t]+/)
-        for (k = 1; k <= nw; k++) {
-            if (w[k] == "normal" || w[k] == "left" || w[k] == "right" || w[k] == "inverted") {
-                print w[k]
-                exit
-            }
+        if (match($0, / (normal|left|right|inverted) \(/)) {
+            print substr($0, RSTART+1, RLENGTH-3)
+            exit
         }
+        print "normal"
     }')"
+[ -n "$CURRENT" ] || CURRENT="right"
 
-# Display rotate is xrandr. Touchscreen/pen follow the panel via
-# `xinput map-to-output` (so a 90° CW display does not swap finger axes).
-# Touchpads/mice stay on the identity matrix — they are pointer devices,
-# not mapped to the panel, and an earlier grep on "touch" broke the mousepad.
+LOG_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/tron"
+LOG="$LOG_DIR/rotate-inputs.log"
+dbg() {
+    mkdir -p "$LOG_DIR" 2>/dev/null || true
+    printf '%s\n' "$*" >>"$LOG" 2>/dev/null || true
+    [ -n "${DEBUG:-}" ] && printf 'rotate: %s\n' "$*" >&2
+}
+
+# Touchpads/mice stay on identity. Digitizers get a CTM for the current
+# xrandr rotate. libinput does not expose "Abs MT Position", and D330
+# nodes are often named GDIX1001:00 / GXTP… rather than "touchscreen".
+udev_flag() {
+    local node="$1" key="$2"
+    [ -n "$node" ] && command -v udevadm >/dev/null || return 1
+    udevadm info --query=property --name="$node" 2>/dev/null | grep -qx "${key}=1"
+}
+
+device_node() {
+    xinput list-props "$1" 2>/dev/null | awk -F'"' '/Device Node \(/ { print $2; exit }'
+}
+
+set_ctm() {
+    local id="$1" matrix="$2"
+    # shellcheck disable=SC2086
+    xinput set-prop --type=float "$id" 'Coordinate Transformation Matrix' $matrix 2>/dev/null ||
+        xinput set-prop "$id" 'Coordinate Transformation Matrix' $matrix
+}
+
+pointer_ids() {
+    xinput list 2>/dev/null | sed -n 's/.*id=\([0-9][0-9]*\).*slave[[:space:]][[:space:]]*pointer.*/\1/p'
+}
+
+pointer_name() {
+    xinput list 2>/dev/null | awk -v i="$1" '
+        $0 ~ ("id=" i "[^0-9]") {
+            gsub(/\t/, " ")
+            sub(/^[^[:alnum:]]+/, "")
+            sub(/[[:space:]]+id=.*/, "")
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "")
+            print
+            exit
+        }'
+}
+
+is_touchpad() {
+    local id="$1" name="$2" node="$3"
+    printf '%s' "$name" | grep -qiE 'touchpad|trackpoint|trackball' && return 0
+    udev_flag "$node" ID_INPUT_TOUCHPAD && return 0
+    xinput list-props "$id" 2>/dev/null | grep -q 'libinput Tapping Enabled' && return 0
+    return 1
+}
+
+is_touchscreen() {
+    local id="$1" name="$2" node="$3"
+    udev_flag "$node" ID_INPUT_TOUCHSCREEN && return 0
+    udev_flag "$node" ID_INPUT_TABLET && return 0
+    printf '%s' "$name" | grep -qiE 'touchscreen|digitizer|goodix|gdix|gxtp|silead|gsl|wacom|stylus|pen|finger' && return 0
+    xinput list-props "$id" 2>/dev/null | grep -q 'Abs MT Position' && return 0
+    return 1
+}
+
 reset_touchpads() {
     command -v xinput >/dev/null || return 0
-    xinput list --name-only | grep -iE 'touchpad|trackpoint|trackball' |
-    while IFS= read -r dev; do
-        [ -n "$dev" ] || continue
-        xinput set-prop "$dev" 'Coordinate Transformation Matrix' \
-            1 0 0 0 1 0 0 0 1 2>/dev/null
+    local id name node
+    for id in $(pointer_ids); do
+        name="$(pointer_name "$id")"
+        node="$(device_node "$id")"
+        is_touchpad "$id" "$name" "$node" || continue
+        set_ctm "$id" "1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0" 2>/dev/null || true
+        dbg "touchpad id=$id identity ($name)"
     done
 }
 
 map_touchscreens() {
     command -v xinput >/dev/null || return 0
     [ -n "$OUTPUT" ] || return 0
-    local matrix
-    case "${1:-$CURRENT}" in
-        left)     matrix="0 -1 1 1 0 0 0 0 1" ;;
-        right)    matrix="0 1 0 -1 0 1 0 0 1" ;;
-        inverted) matrix="-1 0 1 0 -1 1 0 0 1" ;;
-        *)        matrix="1 0 0 0 1 0 0 0 1" ;;
+    local rot matrix id name node mapped=0
+    rot="${1:-$CURRENT}"
+    [ -n "$rot" ] || rot="right"
+    case "$rot" in
+        left)     matrix="0.0 -1.0 1.0 1.0 0.0 0.0 0.0 0.0 1.0" ;;
+        right)    matrix="0.0 1.0 0.0 -1.0 0.0 1.0 0.0 0.0 1.0" ;;
+        inverted) matrix="-1.0 0.0 1.0 0.0 -1.0 1.0 0.0 0.0 1.0" ;;
+        *)        matrix="1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0" ;;
     esac
-    xinput list --name-only |
-    while IFS= read -r dev; do
-        [ -n "$dev" ] || continue
-        printf '%s\n' "$dev" | grep -qiE 'touchpad|trackpoint|trackball|mouse|keyboard' && continue
-        if ! printf '%s\n' "$dev" | grep -qiE 'touchscreen|digitizer|goodix|silead|wacom|stylus|pen|finger'; then
-            xinput list-props "$dev" 2>/dev/null | grep -q 'Abs MT Position' || continue
+    dbg "output=$OUTPUT rotation=$rot matrix=$matrix"
+    for id in $(pointer_ids); do
+        name="$(pointer_name "$id")"
+        node="$(device_node "$id")"
+        is_touchpad "$id" "$name" "$node" && continue
+        is_touchscreen "$id" "$name" "$node" || {
+            dbg "skip id=$id ($name) node=$node"
+            continue
+        }
+        if set_ctm "$id" "$matrix"; then
+            mapped=$((mapped + 1))
+            dbg "touchscreen id=$id CTM $rot ($name) $node"
+        else
+            dbg "FAILED id=$id ($name) set-prop"
         fi
-        # Explicit CTM for the current xrandr rotate. map-to-output is not
-        # used: some builds ignore output rotation and would leave axes swapped.
-        # shellcheck disable=SC2086
-        xinput set-prop "$dev" 'Coordinate Transformation Matrix' $matrix 2>/dev/null
     done
+    if [ "$mapped" -eq 0 ]; then
+        dbg "no touchscreen got a CTM — xinput list:"
+        xinput list >>"$LOG" 2>/dev/null || true
+        [ -n "${DEBUG:-}" ] && xinput list >&2
+        [ -z "${QUIET:-}" ] && err "no touchscreen found to remap (see $LOG)"
+    fi
 }
 
 map_inputs() {
+    mkdir -p "$LOG_DIR" 2>/dev/null || true
+    : >"$LOG" 2>/dev/null || true
     reset_touchpads
     map_touchscreens "${1:-}"
 }
@@ -147,8 +224,14 @@ apply() {
     notify "Display: $next"
 }
 
+# --debug alone remaps inputs; it must not toggle portrait/landscape.
+if [ -n "${DEBUG:-}" ] && [ -z "$TARGET" ] && [ "$ENSURE" != 1 ]; then
+    MAP_ONLY=1
+fi
+
 if [ -n "${MAP_ONLY:-}" ]; then
     map_inputs
+    [ -n "${DEBUG:-}" ] && [ -f "$LOG" ] && cat "$LOG" >&2
     exit 0
 fi
 
