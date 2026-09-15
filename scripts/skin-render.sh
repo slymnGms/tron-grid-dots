@@ -186,12 +186,12 @@ render_loading() {
         (box :class "load-layer load-fg" :hexpand true :vexpand true
              :style "background-image: url('${load.fg}'); background-repeat: no-repeat; background-size: cover; margin-left: ${load.fx}px; margin-top: ${load.fy}px;")
         (box :class "load-grade" :hexpand true :vexpand true)
-        (box :class "load-copy" :halign "start" :valign "end" :orientation "v" :space-evenly false :spacing 4
+        (box :class "load-copy" :halign "start" :valign "end" :orientation "v" :space-evenly false :spacing 2)
           (label :class "load-year" :halign "start" :text {load.year})
           (label :class "load-title" :halign "start" :text {load.title})
           (label :class "load-sub" :halign "start" :text {load.sub})
           (label :class "load-line" :halign "start" :limit-width 42 :text {load.line})))
-      (box :class "load-letter load-letter-bot" :hexpand true :orientation "v" :space-evenly false :spacing 6
+      (box :class "load-letter load-letter-bot" :hexpand true :orientation "v" :space-evenly false :spacing 3)
         (label :class "load-tag" :halign "start" :text {load.tag})
         (scale :class "load-bar" :min 0 :max 100 :value {load.bar} :sensitive false :hexpand true)
         (box :space-evenly true :hexpand true

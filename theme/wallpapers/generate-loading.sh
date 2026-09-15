@@ -34,7 +34,7 @@ draw_bg() {
         step=$((step + 8))
         [ "$step" -lt 70 ] || step=70
     done
-    echo "stroke ${accent}90 strokewidth 3 line 0,$vpy $W,$vpy"
+    echo "stroke ${accent}90 strokewidth 1 line 0,$vpy $W,$vpy"
 }
 
 draw_mid() {
@@ -45,55 +45,55 @@ draw_mid() {
     x=80
     while [ "$x" -lt "$W" ]; do
         h=$(( 40 + (x * 17 % 220) ))
-        echo "stroke ${accent}55 strokewidth 2 fill ${accent}14 rectangle $x,$((base - h)) $((x + 18)),$base"
-        x=$((x + 28 + (x * 13 % 50)))
+        echo "stroke ${accent}55 strokewidth 1 fill ${accent}10 rectangle $x,$((base - h)) $((x + 10)),$base"
+        x=$((x + 22 + (x * 13 % 50)))
     done
     # long light-ribbon
-    echo "stroke ${accent}70 strokewidth 6 line 0,$((base + 40)) $W,$((base + 80))"
-    echo "stroke ${accent}30 strokewidth 14 line 0,$((base + 40)) $W,$((base + 80))"
+    echo "stroke ${accent}70 strokewidth 2 line 0,$((base + 40)) $W,$((base + 80))"
+    echo "stroke ${accent}30 strokewidth 5 line 0,$((base + 40)) $W,$((base + 80))"
 }
 
 # Identity disc (1982)
 draw_fg_disc() {
     local accent="$1"
     local cx=1880 cy=620
-    echo "fill none stroke $accent strokewidth 22 circle $cx,$cy $cx,$((cy + 210))"
-    echo "strokewidth 8 circle $cx,$cy $cx,$((cy + 150))"
-    echo "strokewidth 3 circle $cx,$cy $cx,$((cy + 40))"
-    echo "strokewidth 4 line $((cx - 210)),$cy $((cx + 210)),$cy"
-    echo "line $cx,$((cy - 210)) $cx,$((cy + 210))"
+    echo "fill none stroke $accent strokewidth 6 circle $cx,$cy $cx,$((cy + 140))"
+    echo "strokewidth 2 circle $cx,$cy $cx,$((cy + 95))"
+    echo "strokewidth 1 circle $cx,$cy $cx,$((cy + 22))"
+    echo "strokewidth 1 line $((cx - 140)),$cy $((cx + 140)),$cy"
+    echo "line $cx,$((cy - 140)) $cx,$((cy + 140))"
 }
 
 # Light-cycle side profile (Legacy)
 draw_fg_cycle() {
     local accent="$1"
-    echo "fill ${accent}30 stroke $accent strokewidth 3"
-    echo "polygon 1680,700 2140,700 2080,790 1710,790"
-    echo "fill ${accent}50 polygon 1860,700 2080,700 2040,640 1900,640"
-    echo "fill none strokewidth 6 circle 1760,810 1760,848"
-    echo "circle 2060,810 2060,848"
-    echo "strokewidth 10 line 1680,740 1280,740"
-    echo "strokewidth 3 line 1680,755 1380,755"
+    echo "fill ${accent}18 stroke $accent strokewidth 1"
+    echo "polygon 1760,720 2080,720 2040,780 1780,780"
+    echo "fill ${accent}28 polygon 1880,720 2040,720 2010,680 1910,680"
+    echo "fill none strokewidth 2 circle 1810,798 1810,822"
+    echo "circle 2020,798 2020,822"
+    echo "strokewidth 3 line 1760,746 1480,746"
+    echo "strokewidth 1 line 1760,756 1580,756"
 }
 
 # Recognizer (Uprising)
 draw_fg_recognizer() {
     local accent="$1"
-    echo "fill ${accent}22 stroke $accent strokewidth 3"
-    echo "rectangle 1760,360 1835,1080"
-    echo "rectangle 2085,360 2160,1080"
-    echo "rectangle 1740,330 2180,410"
-    echo "fill none strokewidth 5 circle 1970,370 1970,310"
+    echo "fill ${accent}12 stroke $accent strokewidth 1"
+    echo "rectangle 1860,380 1900,980"
+    echo "rectangle 2040,380 2080,980"
+    echo "rectangle 1840,360 2100,400"
+    echo "fill none strokewidth 2 circle 1970,380 1970,348"
 }
 
 # Gate / portal (Ares)
 draw_fg_portal() {
     local accent="$1"
-    echo "fill ${accent}18 stroke $accent strokewidth 5"
-    echo "roundrectangle 1760,280 2180,1080 24,24"
-    echo "fill none strokewidth 2 roundrectangle 1820,340 2120,1020 16,16"
-    echo "strokewidth 8 line 1970,280 1970,200"
-    echo "strokewidth 3 circle 1970,180 1970,155"
+    echo "fill ${accent}10 stroke $accent strokewidth 2"
+    echo "roundrectangle 1840,360 2100,980 12,12"
+    echo "fill none strokewidth 1 roundrectangle 1875,400 2065,930 8,8"
+    echo "strokewidth 2 line 1970,360 1970,310"
+    echo "strokewidth 1 circle 1970,298 1970,284"
 }
 
 render_layer() {
