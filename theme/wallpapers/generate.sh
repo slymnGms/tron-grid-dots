@@ -5,6 +5,7 @@
 # Draws a faint accent grid on near-black with a subtle glow line at the
 # horizon. Sized 1920x1200 (IdeaPad D330 FHD panel); feh scales it fine on
 # the 1280x800 variant too. Needs ImageMagick (magick or convert).
+# Also builds idle loading-screen parallax plates via generate-loading.sh.
 # ============================================================================
 set -u
 
@@ -34,3 +35,8 @@ HORIZON=$((H * 2 / 3))
     "$OUT" || { echo "[wallpaper] ImageMagick failed" >&2; exit 1; }
 
 echo "[wallpaper] wrote $OUT"
+
+# Idle loading-screen parallax plates (cyan + orange, geometric silhouettes)
+if [ -f "$DIR/generate-loading.sh" ]; then
+    bash "$DIR/generate-loading.sh" || echo "[wallpaper] WARNING: loading layers failed" >&2
+fi

@@ -1,0 +1,56 @@
+{
+  "id": "loading",
+  "style": "loading",
+  "layout": "loading",
+  "background": {
+    "mode": "parallax",
+    "hold": 14
+  },
+  "studio": "ENCOM PRESENTS",
+  "cards": [
+    {
+      "id": "1982",
+      "title": "TRON",
+      "sub": "ORIGINAL",
+      "year": "1982",
+      "tag": "THE ORIGINAL GRID",
+      "line": "I FOUGHT FOR THE USERS",
+      "mark": "DISC",
+      "palette": "cyan",
+      "fg": "disc"
+    },
+    {
+      "id": "legacy",
+      "title": "TRON LEGACY",
+      "sub": "REMASTERED",
+      "year": "2010",
+      "tag": "THE GRID LIVES",
+      "line": "BIO DIGITAL JAZZ, MAN",
+      "mark": "CYCLE",
+      "palette": "cyan",
+      "fg": "cycle"
+    },
+    {
+      "id": "uprising",
+      "title": "TRON UPRISING",
+      "sub": "THE SERIES",
+      "year": "2012",
+      "tag": "RESIST THE OCCUPATION",
+      "line": "THE GAME HAS CHANGED",
+      "mark": "RECOGNIZER",
+      "palette": "orange",
+      "fg": "recognizer"
+    },
+    {
+      "id": "ares",
+      "title": "TRON ARES",
+      "sub": "PROGRAM",
+      "year": "2025",
+      "tag": "A PROGRAM WALKS THE WORLD",
+      "line": "THE NEXT MOVE IS YOURS",
+      "mark": "PORTAL",
+      "palette": "orange",
+      "fg": "portal"
+    }
+  ]
+}
