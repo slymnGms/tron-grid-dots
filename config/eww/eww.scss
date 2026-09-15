@@ -316,9 +316,12 @@ $ok:          #00E5FF;
 .load-stage { overflow: hidden; }
 .load-layer { background-color: transparent; }
 .load-grade {
-  background-image: linear-gradient(to right, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.45) 42%, rgba(0, 0, 0, 0.0) 70%);
+  background-color: rgba(0, 0, 0, 0.35);
 }
-.load-copy { padding: 0px 18px 12px 18px; }
+.load-copy {
+  background-color: rgba(0, 0, 0, 0.72);
+  padding: 8px 18px 12px 18px;
+}
 .load-year {
   font-family: "Orbitron";
   font-size: 8px;
